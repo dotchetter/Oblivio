@@ -1,35 +1,33 @@
 
+import subprocess
+import datetime
 
-from __future__ import print_function
-from googleapiclient.discovery import build
-from httplib2 import Http
-from oauth2client import file, client, tools
 
-SCOPES = 'https://googleapis.com/auth/admin.directory.user'
-
-def main():
-
-	store = file.Storage('token.json')
-	creds = store.get()
-	if not creds or creds.invalid:
-		flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
-		creds = tools.run_flow(flow, store)
-
-	service = build('admin', 'directory_v1', http=creds.authorize(Http()))
-
-	print('Getting all users in the domain')
-	results = service.users().list(customer='KSAB', MaxResults=99999,
-		orderBy='email').execute()
-	users = result.get('users', [])
-
-	if not users:
-		print('No users in the domain')
+def get_cros(domainwide=False, todydate, datescope):
+	'''Ask GAM to fetch all cros devices in to set() and return it.
+	TODO: Date time variables for command towards GAM
+	'''
+	if domainwide == True:
+		gam_command = (
+			"gam print cros orderby lastsync "
+			"fields lastsync, serialnumber")
 	else:
-		print('Users:')
-		for i in users:
-			print(u'{0} ({1}'.format(i['primaryEmail'],user['name']['fullName']))
+		gam_command = (
+			"gam print cros query sync:" + tendaysago_str..today + # non-declared variables, pseudo
+			"fields lastsync, serialnumber orderby" 
+			"lastsync, serialnumber")
 
+	_out = subprocess.Popen(gam_command, stdout=subprocess.PIPE)
+	devices = str(_out.communicate()).split('\\r\\n')
+	device_arr = [x for x in devices if not 'None' in x and not 'deviceId' in x]
+	return device_arr
 
-# if __name__ == '__main__':
-# 	main()
+def get_synced(days=None)
+	gam_command = (
+		"gam print cros orderby lastsync "
+		"fields lastsync, serialnumber")
 
+	_out = subprocess
+
+#debugging only:
+get_cros()
