@@ -1,26 +1,29 @@
 
 
 class Datestring():
+''' Returns a single object with fields for the current date, and 
+date calculated ten days ago from the current date. This creates a time 
+scope for the command being passed to GAM. '''
 
-	def __init__(self, dateobject = None, past = None, present = None):
+    def __init__(self, dateobject = None, past = None, present = None):
 
-		self.dateobject = dateobject
-		self.past = get_then(__dateobject)
-		self.present = get_today(__dateobject)
-
-
-	def get_today(dateobject):
-	    ''' Return today's date as string, format yyyy-mm-dd '''	
-
-	    today = dateobject.strftime('%Y-%m-%d')
-	    if len(today) == 10:
-	    	return today
+        self.dateobject = dateobject
+        self.past = get_then(__dateobject)
+        self.present = get_today(__dateobject)
 
 
-	def get_then(dateobject):
-	    ''' Return a date for (today minus 10 days) as string, format yyyy-mm-dd '''	
+    def get_today(dateobject):
+        ''' Return today's date as string, format yyyy-mm-dd '''    
 
-	    _tendaysago = dateobject + timedelta(days = ( - 50))
-	    tendaysago = _tendaysago.strftime('%Y-%m-%d')
-	    if len(tendaysago) == 10:
-	    	return tendaysago
+        today = dateobject.strftime('%Y-%m-%d')
+        if len(today) == 10:
+            return today
+
+
+    def get_then(dateobject):
+        ''' Return a date for (today minus 10 days) as string, format yyyy-mm-dd '''    
+
+        _tendaysago = dateobject + timedelta(days = ( - 50))
+        tendaysago = _tendaysago.strftime('%Y-%m-%d')
+        if len(tendaysago) == 10:
+            return tendaysago
