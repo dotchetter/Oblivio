@@ -1,29 +1,10 @@
+from datetime import datetime, timedelta
 
-
-class Datestring():
-''' Returns a single object with fields for the current date, and 
-date calculated ten days ago from the current date. This creates a time 
-scope for the command being passed to GAM. '''
-
-    def __init__(self, dateobject = None, past = None, present = None):
-
-        self.dateobject = dateobject
-        self.past = get_then(__dateobject)
-        self.present = get_today(__dateobject)
-
-
-    def get_today(dateobject):
-        ''' Return today's date as string, format yyyy-mm-dd '''    
-
-        today = dateobject.strftime('%Y-%m-%d')
-        if len(today) == 10:
-            return today
-
-
-    def get_then(dateobject):
-        ''' Return a date for (today minus 10 days) as string, format yyyy-mm-dd '''    
-
-        _tendaysago = dateobject + timedelta(days = ( - 50))
-        tendaysago = _tendaysago.strftime('%Y-%m-%d')
-        if len(tendaysago) == 10:
-            return tendaysago
+class Datestring:
+    ''' Date object returned in string format. self.present represents today,
+        self.past represents ten days ago, computed from today's date object.'''
+    def __init__(self, present = None, past = None):
+        __dateobj = datetime.today()
+        __pastobj = __dateobj + timedelta(days = ( -10))
+        self.past = __pastobj.strftime('%Y-%m-%d')
+        self.present = __dateobj.strftime('%Y-%m-%d')
