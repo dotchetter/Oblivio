@@ -5,6 +5,6 @@ class Datestring:
         self.past represents ten days ago, computed from today's date object.'''
     def __init__(self, present = None, past = None):
         __dateobj = datetime.today()
-        __pastobj = __dateobj + timedelta(days = ( -10))
+        __pastobj = __dateobj + timedelta(days = (-720))
         self.past = __pastobj.strftime('%Y-%m-%d')
         self.present = __dateobj.strftime('%Y-%m-%d')

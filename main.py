@@ -1,43 +1,26 @@
 
-from datetime import datetime, timedelta 
+from datestring import Datestring
 import subprocess
 
-dateobject = datetime.today()
 
 def main():
-    today = get_today(dateobject)
-    then = get_then(dateobject)
-    all_crosdev = get_cros(today, then, domain_wide = True)
-    active_crosdev = get_cros(today, then, domain_wide = False)
-    print(active_crosdev)
+    # Create date object with today's date (self.present) and 10 days ago (self.past)
+    dateobj = Datestring()
+    # Call functions to fetch lists of chrome devices from G Suite with GAM
+    active_crosdev = get_cros(dateobj.present, dateobj.past, domain_wide = False)
+    all_crosdev = get_cros(dateobj.present, dateobj.past, domain_wide = True)
+    # Calculate the inactive devices by subtracting the active from all
+    inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
 
 
-def compute_diff(active_devlist, all_devlist):
+def compute_diff(active_devices, all_devices):
     ''' Fetch devices from G Suite and compare active devices in G suite versus 
-    all devices to computeinactive devices within given time scope '''
-    pass
-
-
-def get_today(dateobj):
-    ''' Return today's date as string, format yyyy-mm-dd '''
-
-    date = dateobject.strftime('%Y-%m-%d')
-    if len(date) == 10:
-        return date
-    else:
-        err_handler('Today\'s date error')
-
-
-def get_then(dateobj):
-    ''' Return a date for (today minus 10 days) as string, format yyyy-mm-dd '''
-
-    _tendaysago = dateobject + timedelta(days = ( - 10))
-    tendaysago = _tendaysago.strftime('%Y-%m-%d')
-    if len(tendaysago) == 10:
-        return tendaysago
-    else:
-        err_handler('Old date not defined')
-
+    all devices to compute inactive devices within given time scope '''
+    inactive_devices = [i for i in all_devices if not i in active_devices]
+    
+    # DEBUG:
+    print(len(inactive_devices), 'inactive devices found...')
+    print(inactive_devices)
 
 def get_cros(today, then, domain_wide = False):
     ''' Ask GAM to fetch all cros devices in to set() and return it.
@@ -51,8 +34,12 @@ def get_cros(today, then, domain_wide = False):
     else:
         gam_command = ("gam print cros query sync:" + then + '..' + today 
                         + " fields lastsync, serialnumber orderby lastsync serialnumber")
-    _out = subprocess.Popen(gam_command, stdout=subprocess.PIPE)
-    devices = str(_out.communicate()).split('\\r\\n')
+    
+    # Call GAM and run command depending on the query (domain wide or not)
+    gam_call = subprocess.Popen(gam_command, stdout=subprocess.PIPE)
+    devices = str(gam_call.communicate()).split('\\r\\n')
+
+    # Create a list containing only the devices, not header in the query
     devices_arr = [i for i in devices if not 'None' in i and not 'deviceId' in i]
     
     if len(devices_arr):
@@ -65,7 +52,10 @@ def get_cros(today, then, domain_wide = False):
 
 
 
-def err_handler(Error=None):
+def err_handler(Error = None):
     pass
 
 # debug: 
+
+if __name__ == '__main__':
+    main()
