@@ -80,7 +80,7 @@ def err_handler(exception_type = None, task = None):
     if task == 'gam':
         msg = 'Could not proceed with the task; GAM is not responding.\n'
     elif task == 'platform':
-        msg = 'This code is currently designed to run on Windows only.'
+        msg = 'This version of Oblivio is designed to run on Windows only.'
 
     raise exception_type(msg)
     sys.exit()
