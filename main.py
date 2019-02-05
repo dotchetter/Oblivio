@@ -1,7 +1,8 @@
+
 import os
+import sys
 import subprocess
 from datestring import Datestring
-from sys import platform
 
 # Set GAM as installed in default directory in user's $home.
 GAM = os.getenv("HOME") + '/bin/gam/gam'
@@ -10,7 +11,7 @@ def main():
     
     # Verify platform compatibility
     assert (
-        'darwin' in platform
+        'darwin' in sys.platform
     ), err_handler(exception_type = 'Exception', task = 'platform')
     
     # Check that GAM resides in the presumed directory
