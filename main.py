@@ -12,12 +12,12 @@ def main():
     # Verify platform compatibility
     assert (
         'Linux' in sys.platform
-    ), err_handler(exception_type = 'Exception', task = 'platform')
+    ), err_handler(exception_type = Exception, task = 'platform')
     
     # Check that GAM resides in the presumed directory
     assert (
         os.path.isfile(GAM)
-    ), err_handler(exception_type = 'Exception', task = 'gam_installed')
+    ), err_handler(exception_type = Exception, task = 'gam_installed')
 
     # Datestring instance with today's date and 10 days ago
     dateobj = Datestring()
