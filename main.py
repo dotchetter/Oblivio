@@ -1,7 +1,7 @@
 
 import os
 import sys
-import subprocess
+import subprocess 
 from datestring import Datestring
 
 # Set GAM as installed in default directory in user's $home.
@@ -76,7 +76,10 @@ def get_cros(today, then, domain_wide = False):
     try:
 
         # Call GAM and run command depending on 'domain wide' or not
-        gam_call = subprocess.run(gam_command, capture_output = True)
+        gam_call = subprocess.run(
+            gam_command, stderr = subprocess.PIPE, 
+            stdout = subprocess.PIPE, shell = False
+        )
         gam_output = str(gam_call)
         # Format each device in the GAM output with removed clutter
         gam_output = gam_output.split('\\n')
@@ -85,10 +88,8 @@ def get_cros(today, then, domain_wide = False):
         err_handler(exception_type = RuntimeError, task = 'gam_call')
 
     else:
-
-        # # Comprehend a list containing all devices in the GAM output
-        # devices_arr = [i for i in gam_output]
-
+        # Build a list containing all devices in the GAM output
+        # Discard any empty index, or index with clutter
         for i in gam_output:
             if not 'stderr' in i and not 'print' in i:
                 devices_arr.append(i)
