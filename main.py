@@ -33,7 +33,7 @@ def main():
     if (len(inactive_crosdev)):
         print('Oblivio found', len(inactive_crosdev), 'inactive devices: ', end = '\n')
         for i in inactive_crosdev:
-            print(i)
+            print(i, end = '\n')
 
 def get_cros(today, then, domain_wide = False):
     ''' Call GAM and fetch Chrome OS devices from the domain. domain_wide
@@ -62,7 +62,7 @@ def get_cros(today, then, domain_wide = False):
         gam_call = subprocess.run(gam_command, capture_output = True)
         gam_output = str(gam_call)
         # Format each device in the GAM output with removed clutter
-        gam_output = gam_output.split('\\r\\n')
+        gam_output = gam_output.split('\\n')
 
     except:
         err_handler(exception_type = RuntimeError, task = 'gam_call')
