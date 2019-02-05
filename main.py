@@ -43,13 +43,13 @@ def get_cros(today, then, domain_wide = False):
     if domain_wide == True:
 
         gam_command = [
-            '~/bin/gam/gam', 'print', 'cros', 'orderby', 'lastsync', 
+            GAM, 'print', 'cros', 'orderby', 'lastsync', 
             'fields', 'lastsync,', 'serialnumber'
         ]
 
     else:
         gam_command = [
-            '~/bin/gam/gam', 'print', 'cros', 'query', 
+            GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
             'fields', 'lastsync,', 'serialnumber', 
             'orderby', 'lastsync', 'serialnumber'
