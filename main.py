@@ -11,7 +11,7 @@ def main():
     
     # Verify platform compatibility
     assert (
-        'Linux' in sys.platform
+        'linux' in sys.platform
     ), err_handler(exception_type = Exception, task = 'platform')
     
     # Check that GAM resides in the presumed directory
@@ -124,7 +124,7 @@ def err_handler(exception_type = None, task = None):
     elif task == 'platform':
         msg = (
         'Oblivio: This version of Oblivio is designed to run ' + 
-        'on MacOS only. Download the right version for your OS.'
+        'on Linux only. Download the right version for your OS.'
     ) 
     elif task == 'gam_installed':
         msg = 'Oblivio: GAM was not found to be installed. Check path.'
