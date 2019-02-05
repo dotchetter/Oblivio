@@ -27,10 +27,14 @@ def main():
     all_crosdev = get_cros(dateobj.present, dateobj.past, domain_wide = True)
 
     # Calculate the inactive devices by subtracting the active ones
-    inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
+    if len(active_crosdev) != len(all_crosdev):
+        inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
+    else:
+        inactive_crosdev = None
+        print('No inactive devices found for the current timespan. ')
 
     # DEBUG:
-    if (len(inactive_crosdev)):
+    if inactive_crosdev != None:
         print('Oblivio found', len(inactive_crosdev), 'inactive devices: ', end = '\n')
         for i in inactive_crosdev:
             print(i, end = '\n')
@@ -40,6 +44,8 @@ def get_cros(today, then, domain_wide = False):
     or not will determine if all chrome os devices are fetched or only the active
     ones in the given time frame. 'today' and 'then' variables are date objects
     in string format given as a time frame for the device queries.'''
+
+    devices_arr = []
 
     if domain_wide == True:
 
@@ -69,8 +75,12 @@ def get_cros(today, then, domain_wide = False):
 
     else:
 
-        # Comprehend a list containing all devices in the GAM output string
-        devices_arr = [i for i in gam_output]
+        # # Comprehend a list containing all devices in the GAM output string
+        # devices_arr = [i for i in gam_output]
+
+        for i in gam_output:
+            if not 'stderr' in i and not 'print' in i:
+                devices_arr.append(i)
 
         return devices_arr
 
@@ -81,18 +91,15 @@ def compute_diff(active_devices, all_devices):
     inactive_devices = [
         i for i in all_devices if not i in active_devices
     ]
-    
-    # Keep only last sync date and serialnumber for each index in the list
+
     if len(inactive_devices):
+        # Delete last entry which is always empty
+        del inactive_devices[-1]
+        # Keep only last sync date and serialnumber for each index in the list
         for i in range(len(inactive_devices)):
             inactive_devices[i] = inactive_devices[i].split(',')
             inactive_devices[i] = inactive_devices[i][1:]
         
-        # Remove indexes in the list which are empty or otherwise not interesting
-        for i in range(2):
-            del inactive_devices[-1]
-        del inactive_devices[0]
-
         return inactive_devices
     else:
         return None
