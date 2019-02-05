@@ -19,31 +19,42 @@ def main():
         os.path.isfile(GAM)
     ), err_handler(exception_type = 'Exception', task = 'gam_installed')
 
-    # Date object with today's date (self.present) and 10 days ago (self.past)
+    # Datestring instance with today's date and 10 days ago
     dateobj = Datestring()
     
-    # Call functions to fetch lists of chrome devices from G Suite with GAM
-    active_crosdev = get_cros(dateobj.present, dateobj.past, domain_wide = False)
-    all_crosdev = get_cros(dateobj.present, dateobj.past, domain_wide = True)
+    # Fetch lists of chrome devices from G Suite with GAM
+    active_crosdev = get_cros(
+        dateobj.present, dateobj.past, domain_wide = False
+    )
+    all_crosdev = get_cros(
+        dateobj.present, dateobj.past, domain_wide = True
+    )
 
     # Calculate the inactive devices by subtracting the active ones
     if len(active_crosdev) != len(all_crosdev):
         inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
     else:
         inactive_crosdev = None
-        print('No inactive devices found for the current timespan. ')
+        print(
+            'Oblivio: No inactive devices found for the current timespan.'
+        )
 
-    # DEBUG:
+    # Alpha prior to Google Sheet upload:
     if inactive_crosdev != None:
-        print('Oblivio found', len(inactive_crosdev), 'inactive devices: ', end = '\n')
+        print(
+            'Oblivio: I found', len(inactive_crosdev), 
+            'inactive devices: ', end = '\n'
+        )
+        
         for i in inactive_crosdev:
             print(i, end = '\n')
 
 def get_cros(today, then, domain_wide = False):
     ''' Call GAM and fetch Chrome OS devices from the domain. domain_wide
-    or not will determine if all chrome os devices are fetched or only the active
-    ones in the given time frame. 'today' and 'then' variables are date objects
-    in string format given as a time frame for the device queries.'''
+    or not will determine if all chrome os devices are fetched or only 
+    the active ones in the given time frame. 'today' and 'then' 
+    variables are date objects in string format given as a time frame 
+    for the device queries.'''
 
     devices_arr = []
 
@@ -64,7 +75,7 @@ def get_cros(today, then, domain_wide = False):
     
     try:
 
-        # Call GAM and run command depending on the query (domain wide or not)
+        # Call GAM and run command depending on 'domain wide' or not
         gam_call = subprocess.run(gam_command, capture_output = True)
         gam_output = str(gam_call)
         # Format each device in the GAM output with removed clutter
@@ -75,7 +86,7 @@ def get_cros(today, then, domain_wide = False):
 
     else:
 
-        # # Comprehend a list containing all devices in the GAM output string
+        # # Comprehend a list containing all devices in the GAM output
         # devices_arr = [i for i in gam_output]
 
         for i in gam_output:
@@ -86,8 +97,9 @@ def get_cros(today, then, domain_wide = False):
 
 def compute_diff(active_devices, all_devices):
     ''' Calculate the inactive devices in the given time frame.
-    List is made containing only the devices not occurring in both all and active
-    devices. This yields the devices not used in the given time frame. '''
+    List is made containing only the devices not occurring in 
+    both all and active devices. This yields the devices not used
+    in the given time frame. '''
     inactive_devices = [
         i for i in all_devices if not i in active_devices
     ]
@@ -95,7 +107,7 @@ def compute_diff(active_devices, all_devices):
     if len(inactive_devices):
         # Delete last entry which is always empty
         del inactive_devices[-1]
-        # Keep only last sync date and serialnumber for each index in the list
+        # Keep only last sync date and serialnumber for each index
         for i in range(len(inactive_devices)):
             inactive_devices[i] = inactive_devices[i].split(',')
             inactive_devices[i] = inactive_devices[i][1:]
@@ -108,11 +120,14 @@ def err_handler(exception_type = None, task = None):
     ''' Handle errors on exception and stop execution '''
     
     if task == 'gam_call':
-        msg = 'Could not proceed; GAM is not responding, is it installed?\n'
+        msg = 'Oblivio: Could not proceed; GAM is not responding.'
     elif task == 'platform':
-        msg = 'This version of Oblivio is designed to run on Windows only.'
+        msg = (
+        'Oblivio: This version of Oblivio is designed to run ' + 
+        'on MacOS only.vDownload the right version for your OS.'
+    ) 
     elif task == 'gam_installed':
-        msg = 'GAM was not found to be installed in your user folder.'
+        msg = 'Oblivio: GAM was not found to be installed. Check path.'
 
     raise exception_type(msg)
     sys.exit()
