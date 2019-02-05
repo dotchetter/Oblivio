@@ -74,7 +74,6 @@ def get_cros(today, then, domain_wide = False):
         ]
     
     try:
-
         # Call GAM and run command depending on 'domain wide' or not
         gam_call = subprocess.run(gam_command, capture_output = True)
         gam_output = str(gam_call)
