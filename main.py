@@ -1,14 +1,23 @@
 import os
-import sys
 import subprocess
 from datestring import Datestring
+from sys import platform
+
+# Set GAM as installed in default directory in user's $home.
+GAM = os.getenv("HOME") + '/bin/gam/gam'
 
 def main():
+    
     # Verify platform compatibility
     assert (
         'darwin' in sys.platform
     ), err_handler(exception_type = 'Exception', task = 'platform')
     
+    # Check that GAM resides in the presumed directory
+    assert (
+        os.path.isfile(GAM)
+    ), err_handler(exception_type = 'Exception', task = 'gam_installed')
+
     # Date object with today's date (self.present) and 10 days ago (self.past)
     dateobj = Datestring()
     
@@ -55,7 +64,7 @@ def get_cros(today, then, domain_wide = False):
         gam_output = gam_output.split('\\r\\n')
 
     except:
-        err_handler(exception_type = RuntimeError, task = 'gam')
+        err_handler(exception_type = RuntimeError, task = 'gam_call')
 
     else:
 
@@ -90,12 +99,12 @@ def compute_diff(active_devices, all_devices):
 def err_handler(exception_type = None, task = None):
     ''' Handle errors on exception and stop execution '''
     
-    if task == 'gam':
+    if task == 'gam_call':
         msg = 'Could not proceed; GAM is not responding, is it installed?\n'
     elif task == 'platform':
-
         msg = 'This version of Oblivio is designed to run on Windows only.'
-
+    elif task == 'gam_installed':
+        msg = 'GAM was not found to be installed in your user folder.'
 
     raise exception_type(msg)
     sys.exit()
