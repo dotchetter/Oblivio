@@ -10,7 +10,7 @@ def main():
     
     # Verify platform compatibility
     assert (
-        'darwin' in sys.platform
+        'darwin' in platform
     ), err_handler(exception_type = 'Exception', task = 'platform')
     
     # Check that GAM resides in the presumed directory
