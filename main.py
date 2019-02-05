@@ -124,7 +124,7 @@ def err_handler(exception_type = None, task = None):
     elif task == 'platform':
         msg = (
         'Oblivio: This version of Oblivio is designed to run ' + 
-        'on MacOS only.vDownload the right version for your OS.'
+        'on MacOS only. Download the right version for your OS.'
     ) 
     elif task == 'gam_installed':
         msg = 'Oblivio: GAM was not found to be installed. Check path.'
