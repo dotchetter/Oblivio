@@ -5,19 +5,19 @@ import subprocess
 from datestring import Datestring
 
 # Set GAM as installed in default directory in user's $home.
-GAM = os.getenv("HOME") + '/bin/gam/gam'
+GAM = os.getenv("SYSTEMDRIVE") + '\\gam\\gam.exe'
 
 def main():
     
     # Verify platform compatibility
     assert (
-        'Linux' in sys.platform
-    ), err_handler(exception_type = 'Exception', task = 'platform')
+        'win32' in sys.platform
+    ), err_handler(exception_type = Exception, task = 'platform')
     
     # Check that GAM resides in the presumed directory
     assert (
         os.path.isfile(GAM)
-    ), err_handler(exception_type = 'Exception', task = 'gam_installed')
+    ), err_handler(exception_type = Exception, task = 'gam_installed')
 
     # Datestring instance with today's date and 10 days ago
     dateobj = Datestring()
@@ -79,7 +79,7 @@ def get_cros(today, then, domain_wide = False):
         gam_call = subprocess.run(gam_command, capture_output = True)
         gam_output = str(gam_call)
         # Format each device in the GAM output with removed clutter
-        gam_output = gam_output.split('\\n')
+        gam_output = gam_output.split('\\r\\n')
 
     except:
         err_handler(exception_type = RuntimeError, task = 'gam_call')
@@ -118,7 +118,8 @@ def compute_diff(active_devices, all_devices):
    
 def err_handler(exception_type = None, task = None):
     ''' Handle errors on exception and stop execution '''
-    
+    # DEBUG: 
+    print(exception_type, task)
     if task == 'gam_call':
         msg = 'Oblivio: Could not proceed; GAM is not responding.'
     elif task == 'platform':
