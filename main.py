@@ -39,15 +39,9 @@ def main():
             'Oblivio: No inactive devices found for the current timespan.'
         )
 
-    # Alpha prior to Google Sheet upload:
-    if inactive_crosdev != None:
-        print(
-            'Oblivio: I found', len(inactive_crosdev), 
-            'inactive devices: ', end = '\n'
-        )
-        
-        for i in inactive_crosdev:
-            print(i, end = '\n')
+    # NOTE: Debug
+    return inactive_crosdev
+
 
 def get_cros(today, then, domain_wide = False):
     ''' Call GAM and fetch Chrome OS devices from the domain. domain_wide
@@ -84,10 +78,7 @@ def get_cros(today, then, domain_wide = False):
         err_handler(exception_type = RuntimeError, task = 'gam_call')
 
     else:
-
         # # Comprehend a list containing all devices in the GAM output
-        # devices_arr = [i for i in gam_output]
-
         for i in gam_output:
             if not 'stderr' in i and not 'print' in i:
                 devices_arr.append(i)
@@ -110,7 +101,11 @@ def compute_diff(active_devices, all_devices):
         for i in range(len(inactive_devices)):
             inactive_devices[i] = inactive_devices[i].split(',')
             inactive_devices[i] = inactive_devices[i][1:]
-        
+
+        # Add header tag at the beginning of the list
+        _phrase = ['Last used', 'Serialnumber']
+        inactive_devices.insert(0, _phrase)
+                
         return inactive_devices
     else:
         return None
