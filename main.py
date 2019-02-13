@@ -44,11 +44,11 @@ def main():
 
 
 def get_cros(today, then, domain_wide = False):
-    ''' Call GAM and fetch Chrome OS devices from the domain. domain_wide
-    or not will determine if all chrome os devices are fetched or only 
-    the active ones in the given time frame. 'today' and 'then' 
-    variables are date objects in string format given as a time frame 
-    for the device queries.'''
+    ''' Call GAM and fetch Chrome OS devices from the domain. 
+    domain_wide or not will determine if all chrome os devices are 
+    fetched or only the active ones in the given time frame. 
+    'today' and 'then' variables are date objects in string format 
+    given as a time frame for the device queries.'''
 
     devices_arr = []
 
