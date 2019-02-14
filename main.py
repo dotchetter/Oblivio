@@ -1,31 +1,51 @@
 
 import os
 import sys
+import json
 import subprocess
 from datestring import Datestring
 
 # Set GAM as installed in default directory in user's $home.
 GAM = os.getenv("SYSTEMDRIVE") + '\\gam\\gam.exe'
+# Set GAMDIR as the directory where GAM is installed per default
+GAMDIR = GAM.strip('gam.exe')
+# Set Oblivio dir inside the GAM dir
+OBLIVIODIR = GAMDIR + 'Oblivio'
 
 def main():
     
     # Verify platform compatibility
-    assert (
+    assert(
         'win32' in sys.platform
     ), err_handler(exception_type = Exception, task = 'platform')
     
     # Check that GAM resides in the presumed directory
-    assert (
+    assert(
         os.path.isfile(GAM)
     ), err_handler(exception_type = Exception, task = 'gam_installed')
 
+    # Check that oauth2.txt file with credentials exists
+    assert(
+        os.path.isfile(GAM + 'oauth2.txt')
+    ), err_handler(exception_type = Exception, task = 'gam_installed')
+
+    # Check that Oblivio directory exists, otherwise, create it
+    if oblivio_dir_exists == False:
+        os.mkdir(OBLIVIODIR)
+
     # Datestring instance with today's date and 10 days ago
     dateobj = Datestring()
+
+    # Get user ID to use when calling GAM for file uploads to Google
+    user_id = get_user_id()
+
+    # 
     
     # Fetch lists of chrome devices from G Suite with GAM
     active_crosdev = get_cros(
         dateobj.present, dateobj.past, domain_wide = False
     )
+
     all_crosdev = get_cros(
         dateobj.present, dateobj.past, domain_wide = True
     )
@@ -41,6 +61,31 @@ def main():
 
     # NOTE: Debug
     return inactive_crosdev
+
+
+def get_user_id():
+    ''' Parse oauth2.txt file that GAM uses and fetch the google 
+    username to be used when calling GAM to upload the Oblivio.csv 
+    file '''
+    
+    count = 0
+    
+    try:
+        with open(GAMDIR + 'oauth2.txt') as _file:
+            _user_id = json.load(_file)
+            _user_id = _user_id.get('id_token')
+            _user_id = _user_id.get('email')
+    except:
+        err_handler(exception_type = RuntimeError, task = 'get_user_id')
+    else:
+        # Strip the user name from domain to minimize leakage risk
+        for i in _user_id:
+            count += 1
+            if i == '@':
+                index = count
+
+        _user_id = _user_id[0:index - 1]
+        return _user_id
 
 
 def get_cros(today, then, domain_wide = False):
@@ -85,6 +130,7 @@ def get_cros(today, then, domain_wide = False):
 
         return devices_arr
 
+
 def compute_diff(active_devices, all_devices):
     ''' Calculate the inactive devices in the given time frame.
     List is made containing only the devices not occurring in 
@@ -120,9 +166,17 @@ def err_handler(exception_type = None, task = None):
         msg = (
         'Oblivio: This version of Oblivio is designed to run ' + 
         'on MacOS only. Download the right version for your OS.'
-    ) 
+        ) 
     elif task == 'gam_installed':
         msg = 'Oblivio: GAM was not found to be installed. Check path.'
+    elif task == 'get_user_id':
+        msg = ('An error occured while parsing the oauth2.txt file for ' + 
+        'G suite username, username was not found in expected key.'
+        )
+    elif task == 'csv_creation':
+        msg = 'An error occured while creating the CSV file.'
+    elif task == 'csv_upload':
+        msg = 'An error occured while using GAM to upload the csv file.'
 
     raise exception_type(msg)
     sys.exit()
