@@ -3,7 +3,7 @@ import os
 import sys
 import json
 import subprocess
-from datestring import Datestring
+from Oblivio import *
 
 # Set GAM as installed in default directory in user's $home.
 GAM = os.getenv("SYSTEMDRIVE") + '\\gam\\gam.exe'
@@ -26,20 +26,18 @@ def main():
 
     # Check that oauth2.txt file with credentials exists
     assert(
-        os.path.isfile(GAM + 'oauth2.txt')
+        os.path.isfile(GAMDIR + 'oauth2.txt')
     ), err_handler(exception_type = Exception, task = 'gam_installed')
 
     # Check that Oblivio directory exists, otherwise, create it
-    if oblivio_dir_exists == False:
+    if os.path.isdir(OBLIVIODIR) == False:
         os.mkdir(OBLIVIODIR)
-
-    # Datestring instance with today's date and 10 days ago
-    dateobj = Datestring()
-
+    
     # Get user ID to use when calling GAM for file uploads to Google
     user_id = get_user_id()
 
-    # 
+    # Datestring instance with today's date and 10 days ago
+    dateobj = Datestring()
     
     # Fetch lists of chrome devices from G Suite with GAM
     active_crosdev = get_cros(
@@ -53,6 +51,15 @@ def main():
     # Calculate the inactive devices by subtracting the active ones
     if len(active_crosdev) != len(all_crosdev):
         inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
+        # Instanciate object to upload data to Google Drive
+        oblivio = InactiveDevicesCsv(
+            inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id
+        )
+        # Create csv locally containing all inactive devices
+        oblivio.create_csv()
+        # Upload csv
+        oblivio.upload_csv()
+
     else:
         inactive_crosdev = None
         print(
@@ -156,30 +163,5 @@ def compute_diff(active_devices, all_devices):
     else:
         return None
    
-def err_handler(exception_type = None, task = None):
-    ''' Handle errors on exception and stop execution '''
-    # DEBUG: 
-    print(exception_type, task)
-    if task == 'gam_call':
-        msg = 'Oblivio: Could not proceed; GAM is not responding.'
-    elif task == 'platform':
-        msg = (
-        'Oblivio: This version of Oblivio is designed to run ' + 
-        'on MacOS only. Download the right version for your OS.'
-        ) 
-    elif task == 'gam_installed':
-        msg = 'Oblivio: GAM was not found to be installed. Check path.'
-    elif task == 'get_user_id':
-        msg = ('An error occured while parsing the oauth2.txt file for ' + 
-        'G suite username, username was not found in expected key.'
-        )
-    elif task == 'csv_creation':
-        msg = 'An error occured while creating the CSV file.'
-    elif task == 'csv_upload':
-        msg = 'An error occured while using GAM to upload the csv file.'
-
-    raise exception_type(msg)
-    sys.exit()
- 
 if __name__ == '__main__':
     main()
