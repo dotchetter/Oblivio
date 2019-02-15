@@ -18,24 +18,23 @@ def main():
     assert(
         'win32' in sys.platform
     ), err_handler(exception_type = Exception, task = 'platform')
-    
     # Check that GAM resides in the presumed directory
     assert(
         os.path.isfile(GAM)
     ), err_handler(exception_type = Exception, task = 'gam_installed')
-
+  
     # Check that oauth2.txt file with credentials exists
     assert(
         os.path.isfile(GAMDIR + 'oauth2.txt')
     ), err_handler(exception_type = Exception, task = 'gam_installed')
-
+    
     # Check that Oblivio directory exists, otherwise, create it
     if os.path.isdir(OBLIVIODIR) == False:
         os.mkdir(OBLIVIODIR)
     
     # Get user ID to use when calling GAM for file uploads to Google
     user_id = get_user_id()
-
+    
     # Datestring instance with today's date and 10 days ago
     dateobj = Datestring()
     
@@ -43,17 +42,17 @@ def main():
     active_crosdev = get_cros(
         dateobj.present, dateobj.past, domain_wide = False
     )
-
+    
     all_crosdev = get_cros(
         dateobj.present, dateobj.past, domain_wide = True
     )
-
+  
     # Calculate the inactive devices by subtracting the active ones
     if len(active_crosdev) != len(all_crosdev):
         inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
         # Instanciate object to upload data to Google Drive
         oblivio = InactiveDevicesCsv(
-            inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id
+            inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id, dateobj
         )
         # Create csv locally containing all inactive devices
         oblivio.create_csv()
@@ -65,9 +64,6 @@ def main():
         print(
             'Oblivio: No inactive devices found for the current timespan.'
         )
-
-    # NOTE: Debug
-    return inactive_crosdev
 
 
 def get_user_id():
@@ -108,15 +104,15 @@ def get_cros(today, then, domain_wide = False):
 
         gam_command = [
             GAM, 'print', 'cros', 'orderby', 'lastsync', 
-            'fields', 'lastsync,', 'serialnumber'
+            'fields', 'lastsync,', 'serialnumber', 'OU'
         ]
 
     else:
         gam_command = [
             GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
-            'fields', 'lastsync,', 'serialnumber', 
-            'orderby', 'lastsync', 'serialnumber'
+            'fields', 'lastsync,', 'serialnumber', 'orderby', 
+            'lastsync', 'serialnumber', 'OU'
         ]
     
     try:
@@ -156,7 +152,7 @@ def compute_diff(active_devices, all_devices):
             inactive_devices[i] = inactive_devices[i][1:]
 
         # Add header tag at the beginning of the list
-        _phrase = ['Last used', 'Serialnumber']
+        _phrase = ['Last used', 'Serialnumber', 'Organizational unit']
         inactive_devices.insert(0, _phrase)
                 
         return inactive_devices
@@ -165,3 +161,4 @@ def compute_diff(active_devices, all_devices):
    
 if __name__ == '__main__':
     main()
+   
