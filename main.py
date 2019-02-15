@@ -65,9 +65,6 @@ def main():
             'Oblivio: No inactive devices found for the current timespan.'
         )
 
-    # NOTE: Debug
-    return inactive_crosdev
-
 
 def get_user_id():
     ''' Parse oauth2.txt file that GAM uses and fetch the google 
@@ -107,7 +104,7 @@ def get_cros(today, then, domain_wide = False):
 
         gam_command = [
             GAM, 'print', 'cros', 'orderby', 'lastsync', 
-            'fields', 'lastsync,', 'serialnumber'
+            'fields', 'lastsync,', 'serialnumber', 'location'
         ]
 
     else:
@@ -115,7 +112,8 @@ def get_cros(today, then, domain_wide = False):
             GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
             'fields', 'lastsync,', 'serialnumber', 
-            'orderby', 'lastsync', 'serialnumber'
+            'orderby', 'lastsync', 'serialnumber',
+            'location'
         ]
     
     try:
@@ -155,7 +153,7 @@ def compute_diff(active_devices, all_devices):
             inactive_devices[i] = inactive_devices[i][1:]
 
         # Add header tag at the beginning of the list
-        _phrase = ['Last used', 'Serialnumber']
+        _phrase = ['Last used', 'Serialnumber', 'Organizational unit']
         inactive_devices.insert(0, _phrase)
                 
         return inactive_devices

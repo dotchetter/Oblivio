@@ -47,16 +47,18 @@ class InactiveDevicesCsv:
         ]
 
         try:
+            # Call GAM to upload the CSV to Google 
             _gam_call = subprocess.run(_gam_command, capture_output = True)
+            if 'unauthorized_client' in str(_gam_call):        
+                err_handler(exception_type = ChildProcessError, task = 'not_authorized')
         except:
-            err_handler(exception_type = RuntimeError, task = 'csv_upload')
+            err_handler(exception_type = ChildProcessError, task = 'csv_upload')
         else:
             return 'Upload complete'
 
 def err_handler(exception_type = None, task = None):
     ''' Handle errors on exception and stop execution '''
-    # DEBUG: 
-    print(exception_type, task)
+
     if task == 'gam_call':
         msg = 'Oblivio: Could not proceed; GAM is not responding.'
     elif task == 'platform':
@@ -70,6 +72,8 @@ def err_handler(exception_type = None, task = None):
         msg = ('Oblivio: An error occured while parsing the oauth2.txt file for ' + 
         'G suite username, username was not found in expected key.'
         )
+    elif task == 'not_authorized':
+        msg = 'Oblivio: GAM is not authorized to upload files with this project.'
     elif task == 'csv_creation':
         msg = 'Oblivio: An error occured while creating the CSV file.'
     elif task == 'csv_upload':
