@@ -61,8 +61,9 @@ def get_cros(today, then, domain_wide = False):
     if domain_wide == True:
 
         gam_command = [
-            GAM, 'print', 'cros', 'orderby', 'lastsync', 
-            'fields', 'lastsync,', 'serialnumber'
+            GAM, 'print', 'cros', 'orderby', 
+            'lastsync', 'status', 'fields', 'lastsync,',
+            'serialnumber', 'OU'
         ]
 
     else:
@@ -70,7 +71,8 @@ def get_cros(today, then, domain_wide = False):
             GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
             'fields', 'lastsync,', 'serialnumber', 
-            'orderby', 'lastsync', 'serialnumber'
+            'status', 'orderby', 'lastsync','serialnumber',
+            'OU'
         ]
     
     try:
@@ -101,7 +103,7 @@ def compute_diff(active_devices, all_devices):
     both all and active devices. This yields the devices not used
     in the given time frame. '''
     inactive_devices = [
-        i for i in all_devices if not i in active_devices
+        i for i in all_devices if not i in active_devices and not 'DEPROVISIONED' in i
     ]
 
     if len(inactive_devices):
@@ -110,7 +112,7 @@ def compute_diff(active_devices, all_devices):
         # Keep only last sync date and serialnumber for each index
         for i in range(len(inactive_devices)):
             inactive_devices[i] = inactive_devices[i].split(',')
-            inactive_devices[i] = inactive_devices[i][1:]
+            inactive_devices[i] = inactive_devices[i][2:]
         
         return inactive_devices
     else:
