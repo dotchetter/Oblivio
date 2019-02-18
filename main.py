@@ -103,28 +103,16 @@ def get_cros(today, then, domain_wide = False):
     if domain_wide == True:
 
         gam_command = [
-<<<<<<< HEAD
-            GAM, 'print', 'cros', 'orderby', 
-            'lastsync', 'status', 'fields', 'lastsync,',
-            'serialnumber', 'OU'
-=======
-            GAM, 'print', 'cros', 'orderby', 'lastsync', 
-            'fields', 'lastsync,', 'serialnumber', 'location'
->>>>>>> 55193a25813ad8605bff99b05c83679f1cddb882
+            GAM, 'print', 'cros', 'orderby', 'lastsync',
+            'status', 'fields', 'lastsync,','serialnumber', 'OU'
         ]
 
     else:
         gam_command = [
             GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
-            'fields', 'lastsync,', 'serialnumber', 
-<<<<<<< HEAD
-            'status', 'orderby', 'lastsync','serialnumber',
-            'OU'
-=======
-            'orderby', 'lastsync', 'serialnumber',
-            'location'
->>>>>>> 55193a25813ad8605bff99b05c83679f1cddb882
+            'fields', 'lastsync,', 'serialnumber', 'orderby', 
+            'status', 'lastsync', 'serialnumber', 'OU'
         ]
     
     try:
@@ -161,17 +149,11 @@ def compute_diff(active_devices, all_devices):
         # Keep only last sync date and serialnumber for each index
         for i in range(len(inactive_devices)):
             inactive_devices[i] = inactive_devices[i].split(',')
-<<<<<<< HEAD
             inactive_devices[i] = inactive_devices[i][2:]
         
-=======
-            inactive_devices[i] = inactive_devices[i][1:]
-
         # Add header tag at the beginning of the list
         _phrase = ['Last used', 'Serialnumber', 'Organizational unit']
         inactive_devices.insert(0, _phrase)
-                
->>>>>>> 55193a25813ad8605bff99b05c83679f1cddb882
         return inactive_devices
     else:
         return None
