@@ -21,12 +21,14 @@ class InactiveDevicesCsv:
     file locally, and uploading the CSV to G Suite using GAM as 
     separate process.'''
     
-    def __init__(self, cros_list, oblivio_path, gam, gam_path, user_id):
+    def __init__(self, cros_list, oblivio_path, gam, gam_path, user_id, dateobject):
         self.cros_list = cros_list
         self.oblivio_path = oblivio_path
         self.gam = gam
         self.gam_path = gam_path
-        self.csv = (self.oblivio_path + '/Oblivio.csv')
+        self.csv = ("{}{} {}{}".format(
+            self.oblivio_path, '/Oblivio', dateobject.present, '.csv')
+        )
         self.user_id = user_id
     
     def create_csv(self):
