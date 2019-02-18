@@ -44,7 +44,6 @@ def main():
     # Calculate the inactive devices by subtracting the active ones
     if len(active_crosdev) != len(all_crosdev):
         inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
-       
         # Instanciate object to upload data to Google Drive
         oblivio = InactiveDevicesCsv(
             inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id, dateobj
@@ -141,8 +140,8 @@ def compute_diff(active_devices, all_devices):
 
         # Add header tag at the beginning of the list
         _phrase = ['Last used', 'Serialnumber', 'Organizational unit']
+        
         inactive_devices.insert(0, _phrase)
-                
         return inactive_devices
     else:
         return None
