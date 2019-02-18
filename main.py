@@ -52,7 +52,7 @@ def main():
         inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
         # Instanciate object to upload data to Google Drive
         oblivio = InactiveDevicesCsv(
-            inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id
+            inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id, dateobj
         )
         # Create csv locally containing all inactive devices
         oblivio.create_csv()
@@ -112,7 +112,7 @@ def get_cros(today, then, domain_wide = False):
             'fields', 'status', 'lastsync', 'serialnumber', 'orderby', 
             'lastsync', 'status', 'serialnumber', 'OU'
         ]
-        
+
     try:
         # Call GAM and run command depending on 'domain wide' or not
         gam_call = subprocess.run(gam_command, capture_output = True)
