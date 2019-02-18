@@ -45,7 +45,7 @@ class InactiveDevicesCsv():
         ''' Generate list with GAM arguments to upload csv to Google Drive '''
         _gam_command = [
             self.gam, 'user', self.user_id,'add', 
-            'drivefile', 'localfile', self.csv, 'convert'
+            'drivefile', 'localfile', self.csv, 'convert', 'parentname', 'Oblivio'
         ]
 
         try:

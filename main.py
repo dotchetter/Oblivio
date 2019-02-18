@@ -22,34 +22,29 @@ def main():
     assert(
         os.path.isfile(GAM)
     ), err_handler(exception_type = Exception, task = 'gam_installed')
-  
     # Check that oauth2.txt file with credentials exists
     assert(
         os.path.isfile(GAMDIR + 'oauth2.txt')
     ), err_handler(exception_type = Exception, task = 'gam_installed')
-    
     # Check that Oblivio directory exists, otherwise, create it
     if os.path.isdir(OBLIVIODIR) == False:
         os.mkdir(OBLIVIODIR)
-    
     # Get user ID to use when calling GAM for file uploads to Google
     user_id = get_user_id()
-    
     # Datestring instance with today's date and 10 days ago
     dateobj = Datestring()
-    
-    # Fetch lists of chrome devices from G Suite with GAM
+    # Fetch list of active chrome devices from G Suite with GAM
     active_crosdev = get_cros(
         dateobj.present, dateobj.past, domain_wide = False
     )
-    
+    # Fetch list of all chrome devices from G Suite
     all_crosdev = get_cros(
         dateobj.present, dateobj.past, domain_wide = True
     )
-  
     # Calculate the inactive devices by subtracting the active ones
     if len(active_crosdev) != len(all_crosdev):
         inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
+       
         # Instanciate object to upload data to Google Drive
         oblivio = InactiveDevicesCsv(
             inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id, dateobj
@@ -58,13 +53,11 @@ def main():
         oblivio.create_csv()
         # Upload csv
         oblivio.upload_csv()
-
     else:
         inactive_crosdev = None
         print(
             'Oblivio: No inactive devices found for the current timespan.'
         )
-
 
 def get_user_id():
     ''' Parse oauth2.txt file that GAM uses and fetch the google 
@@ -101,38 +94,33 @@ def get_cros(today, then, domain_wide = False):
     devices_arr = []
 
     if domain_wide == True:
-
         gam_command = [
-            GAM, 'print', 'cros', 'orderby', 'lastsync', 
-            'status', 'fields', 'lastsync,', 'serialnumber', 'OU'
+            GAM, 'print', 'cros', 'orderby',  'lastsync', 'status',
+            'fields', 'status', 'lastsync', 'serialnumber', 'OU'
         ]
-
     else:
         gam_command = [
             GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
-            'fields', 'lastsync,', 'serialnumber', 'orderby', 
-            'status', 'lastsync', 'serialnumber', 'OU'
+            'fields', 'status', 'lastsync', 'serialnumber', 'orderby', 
+             'lastsync', 'status', 'serialnumber', 'OU'
         ]
     
     try:
         # Call GAM and run command depending on 'domain wide' or not
         gam_call = subprocess.run(gam_command, capture_output = True)
         gam_output = str(gam_call)
+        
         # Format each device in the GAM output with removed clutter
         gam_output = gam_output.split('\\r\\n')
-
     except:
         err_handler(exception_type = RuntimeError, task = 'gam_call')
-
     else:
         # # Comprehend a list containing all devices in the GAM output
         for i in gam_output:
             if not 'stderr' in i and not 'print' in i:
                 devices_arr.append(i)
-
         return devices_arr
-
 
 def compute_diff(active_devices, all_devices):
     ''' Calculate the inactive devices in the given time frame.
