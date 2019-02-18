@@ -101,20 +101,18 @@ def get_cros(today, then, domain_wide = False):
     devices_arr = []
 
     if domain_wide == True:
-
         gam_command = [
-            GAM, 'print', 'cros', 'orderby', 'lastsync',
-            'status', 'fields', 'lastsync,','serialnumber', 'OU'
+            GAM, 'print', 'cros', 'orderby', 'lastsync', 'status',
+            'fields', 'status', 'lastsync', 'serialnumber', 'OU'
         ]
-
     else:
         gam_command = [
             GAM, 'print', 'cros', 'query', 
             'sync:' + str(then + '..' + today), 
-            'fields', 'lastsync,', 'serialnumber', 'orderby', 
-            'status', 'lastsync', 'serialnumber', 'OU'
+            'fields', 'status', 'lastsync', 'serialnumber', 'orderby', 
+            'lastsync', 'status', 'serialnumber', 'OU'
         ]
-    
+        
     try:
         # Call GAM and run command depending on 'domain wide' or not
         gam_call = subprocess.run(gam_command, capture_output = True)
