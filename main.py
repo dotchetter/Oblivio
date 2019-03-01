@@ -3,14 +3,39 @@ import os
 import sys
 import json
 import subprocess
+import argparse
 from Oblivio import *
 
-# Set GAM as installed in default directory in user's $home.
-GAM = os.getenv("SYSTEMDRIVE") + '\\gam\\gam.exe'
-# Set GAMDIR as the directory where GAM is installed per default
-GAMDIR = GAM.strip('gam.exe')
-# Set Oblivio dir inside the GAM dir
-OBLIVIODIR = GAMDIR + 'Oblivio'
+
+# Add commandline parameters when running Oblivio
+argument_parser = argparse.ArgumentParser(
+    description = 'Oblivio v.1.0 - See command switches below. ' +
+                    'For extensive help on Oblivio, see URL HERE'
+)
+argument_parser.add_argument(
+    '-gampath',help = 'Install directory for GAM',
+    type = str
+)
+argument_parser.add_argument(
+    '-outpath',help = 'Where Oblivio will store outputfiles',
+    type = str
+)
+argument_parser.add_argument(
+    '-user', help = 'Email adress of the G suite user with GAM configured',
+    type = str
+)
+argument_parser.add_argument(
+    '-upload', help = 'True or False. False means no upload but the creation of a file.',
+    type = str
+)
+argument_parser.add_argument(
+    '-nolocalfile', help = 'Remove the local file after upload.',
+    type = str
+)
+
+# Parse all arguments given in to list object
+ARGS = argument_parser.parse_args()
+
 
 def main():
     
@@ -57,6 +82,7 @@ def main():
         print(
             'Oblivio: No inactive devices found for the current timespan.'
         )
+
 
 def get_user_id():
     ''' Parse oauth2.txt file that GAM uses and fetch the google 
@@ -121,6 +147,7 @@ def get_cros(today, then, domain_wide = False):
                 devices_arr.append(i)
         return devices_arr
 
+
 def compute_diff(active_devices, all_devices):
     ''' Calculate the inactive devices in the given time frame.
     List is made containing only the devices not occurring in 
@@ -147,5 +174,5 @@ def compute_diff(active_devices, all_devices):
         return None
    
 if __name__ == '__main__':
-    main()
-   
+   # main() DEBUG
+   print(ARGS)   
