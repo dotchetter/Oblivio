@@ -1,4 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+'''
+MIT License
+
+Copyright (c) 2018 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. 
+
+'''
 import os
 import sys
 import json
@@ -9,33 +35,32 @@ from Oblivio import *
 
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
-    description = 'Oblivio v.1.0 - See command switches below. ' +
-                    'For extensive help on Oblivio, see URL HERE'
+    description = '''Oblivio v.1.0 by Simon Olofsson.
+                    See command switches below. For extensive
+                    help on Oblivio, use the '-example' 
+                    switch or visit URL HERE '''
 )
-argument_parser.add_argument(
-    '-gampath',help = 'Install directory for GAM',
-    type = str
+
+# Add help strings to tuple
+help_strings = (
+    'See an example for how to use Oblivio',
+    'Install directory for GAM',
+    'Where Oblivio will store outputfiles',
+    'Email adress for the GAM G suite user',
+    'True or False. False will still create a local file.',
+    'Remove the local file after upload.'
 )
-argument_parser.add_argument(
-    '-outpath',help = 'Where Oblivio will store outputfiles',
-    type = str
-)
-argument_parser.add_argument(
-    '-user', help = 'Email adress of the G suite user with GAM configured',
-    type = str
-)
-argument_parser.add_argument(
-    '-upload', help = 'True or False. False means no upload but the creation of a file.',
-    type = str
-)
-argument_parser.add_argument(
-    '-nolocalfile', help = 'Remove the local file after upload.',
-    type = str
-)
+
+# Add commandline switches
+argument_parser.add_argument('-example', help = help_strings[0])
+argument_parser.add_argument('gampath', help = help_strings[1])
+argument_parser.add_argument('outpath', help = help_strings[2])
+argument_parser.add_argument('user', help = help_strings[3])
+argument_parser.add_argument('upload', help = help_strings[4])
+argument_parser.add_argument('-nofile', help = help_strings[5])
 
 # Parse all arguments given in to list object
 ARGS = argument_parser.parse_args()
-
 
 def main():
     
@@ -83,16 +108,13 @@ def main():
             'Oblivio: No inactive devices found for the current timespan.'
         )
 
-
-def get_user_id():
-    ''' Parse oauth2.txt file that GAM uses and fetch the google 
-    username to be used when calling GAM to upload the Oblivio.csv 
-    file '''
-    
-    count = 0
-    
+def get_user_id(gamdir):                                # UNFINISHED
+    ''' Return the username email for the authenticated 
+    GAM user, stripped of the domain name to pass on to
+    GAM. This is fetched if the 'default' parameter is
+    given on the USER switch when Oblivio is run. '''
     try:
-        with open(GAMDIR + 'oauth2.txt') as _file:
+        with open(gamdir + 'oauth2.txt') as _file:
             _user_id = json.load(_file)
             _user_id = _user_id.get('id_token')
             _user_id = _user_id.get('email')
@@ -100,15 +122,12 @@ def get_user_id():
         err_handler(exception_type = RuntimeError, task = 'get_user_id')
     else:
         # Strip the user name from domain to minimize leakage risk
-        for i in _user_id:
-            count += 1
+        for index, i in enumerate(_user_id):
             if i == '@':
-                index = count
-
-        _user_id = _user_id[0:index - 1]
+                _user_id[0:index - 1]
+                break
         return _user_id
-
-
+    
 def get_cros(today, then, domain_wide = False):
     ''' Call GAM and fetch Chrome OS devices from the domain. 
     domain_wide or not will determine if all chrome os devices are 
@@ -175,4 +194,4 @@ def compute_diff(active_devices, all_devices):
    
 if __name__ == '__main__':
    # main() DEBUG
-   print(ARGS)   
+   print(ARGS.user)
