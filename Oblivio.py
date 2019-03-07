@@ -72,47 +72,34 @@ class Inventory(Datestring):
         return self._all_devices
 
     @all_devices.setter
-    def all_cros(self):
-        ''' Pass arguments to GAM and redirect stdout to parse
-        the output of devices that are recieved. 
+    def all_devices(self):
+        ''' Pass arguments to GAM and redirect stdout to 
+        parse the output of devices that are recieved. 
         Get all cros devices in the domain in tuple. '''
 
         # Fetch all crome os devices in the domain
-        _args = (gam_path, 'print',
+        _cmd = (gam_path, 'print',
                 'cros', 'orderby',  
                 'lastsync', 'status',
                 'fields', 'status', 
                 'lastsync', 'serialnumber',
                 'OU'
         )
-
         try:
-            # Initiate subprocess and process commands
-            _gam_call = subprocess.run(_args)
-            _gam_output = str(_gam_call)
-            # Format each device in the GAM output with removed trails
-            _gam_output = _gam_output.split('\\r\\n')
-        except Exception as e:
-            raise Exception(e)
-        else:
-            # Comprehend a list with the output devices, return as set
-            _output = [
-                i for i in _gam_output if not 'print' in i and not 'stderr' in i
-            ]
-            self.all_cros = set(output)
+            self._all_devices = set(output)
 
     @property
     def active_devices(self):
         return self._active_devices
     
-    @active_devices.setter(self)
+    @active_devices.setter
     def active_devices(self):
-        ''' Pass arguments to GAM and redirect stdout to parse
-        the output of devices that are recieved. 
+        ''' Pass arguments to GAM and redirect stdout 
+        to parse the output of devices that are recieved. 
         Get all cros devices in the domain in tuple. '''
 
         # Fetch only active crome os devices in the domain
-        _args = (gam_path, 'print',
+        _cmd = (gam_path, 'print',
                 'cros', 'query',
                 'sync:' + str(Datestring.preset + '..' + Datestring.past), 
                 'fields', 'status',
@@ -122,6 +109,79 @@ class Inventory(Datestring):
                 'OU'
         )
 
+        # Call method to pass arguments to GAM
+        # Set the property to the returned list object as a set()
+        set(self._active_devices) = self.init_gam(_cmd)
+
+    @property
+    def inactive_devices(self):
+        return self._inactive_devices
+
+    @inactive_devices.setter
+    def inactive_devices(self):
+        ''' Field containing a subtraction of the active
+        devices from all devices, leaving only the inactive 
+        devices in a set() '''
+
+        # Subract the active devices from all devices to get inactive
+        self._inactive_devices = (self._all_devices - self._active_devices)
+
+    @property
+    def provisioned(self):
+        return self._provisioned
+    
+    @provisioned.setter
+    def provisioned(self):
+        ''' Field containing devices that were found to be
+        inactive and are provisioned in the domain '''
+
+        # Comprehend list with only the provisioned inactive devices
+        __prov = [x for x in self._inactive_devices if 'provisioned' in i]
+        self._provisioned = tuple(__prov)
+
+    @property
+    def deprovisioned(self):
+        return self._provisioned
+    
+    @deprovisioned.setter
+    def deprovisioned(self):
+        ''' Field containing devices that were found to be
+        inactive and are deprovisioned in the domain '''
+
+        # Comprehend list with only the deprovisioned inactive devices
+        __prov = [x for x in self._inactive_devices if 'deprovisioned' in i]
+        self._provisioned = tuple(__prov)
+
+    @property
+    def disabled(self):
+        return self._provisioned
+    
+    @disabled.setter
+    def disabled(self):
+        ''' Field containing devices that were found to be
+        inactive and are disabled in the domain '''
+
+        # Comprehend list with only the disabled inactive devices
+        __prov = [x for x in self._inactive_devices if 'disabled' in i]
+        self._provisioned = tuple(__prov)
+
+    def init_gam(self, cmdlist):
+        '''Process a series of commands passed 
+        to subprocess. Return tuple with output. '''
+
+        # Initiate subprocess and process commands
+        _gam_call = subprocess.run(_args)
+        _gam_output = str(_gam_call)
+        
+        # Format each device in the GAM output with removed trails
+        _gam_output = _gam_output.split('\\r\\n')
+        except Exception as e:
+            raise Exception(e)
+        else:
+            # Comprehend a list with the output devices
+            _output = [
+                i for i in _gam_output if not 'print' in i and not 'stderr' in i
+            ]
 
 
 class LocalFileCreator():
