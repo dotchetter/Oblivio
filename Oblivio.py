@@ -61,38 +61,34 @@ class Inventory(Datestring):
         # Instanciate Datestring Object
         Datestring.__init__(self, delta = delta)
 
-        # Tuple with commands to pass to GAM     # MOVE OUTSIDE OF CLASS
-        _arg_list = (
-            (gam_path, 'print', 'cros', 'orderby',  
-            'lastsync', 'status', 'fields', 'status', 
-            'lastsync', 'serialnumber','OU'
-            ),
-            (gam_path, 'print', 'cros', 'query', 
-            'sync:' + str(then + '..' + today), 
-            'fields', 'status', 'lastsync', 'serialnumber', 
-            'orderby', 'lastsync', 'status', 'serialnumber',
-            'OU'
-            )
-        )
-
         # Get all devices in the domain as set()
         self.all_cros = self.get_cros(_arg_list, query = 'all')     # MOVE OUTSIDE OF CLASS
 
         # Get only the active devices in the domain as set()
         self.active_cros = self.get_cros(_arg_list, query = 'active')       # MOVE OUTSIDE OF CLASS
 
-    def set_cros(self, arglist, query = None):
+    @property
+    def all_devices(self):
+        return self._all_devices
+
+    @all_devices.setter
+    def all_cros(self):
         ''' Pass arguments to GAM and redirect stdout to parse
-        the output of devices that are recieved. Returns list 
-        object with devices from the query. '''
-        
-        if query == 'all':
-            _cmdlist = arglist[0]
-        elif query == 'active':
-            _cmdlist = arglist[1]
+        the output of devices that are recieved. 
+        Get all cros devices in the domain in tuple. '''
+
+        # Fetch all crome os devices in the domain
+        _args = (gam_path, 'print',
+                'cros', 'orderby',  
+                'lastsync', 'status',
+                'fields', 'status', 
+                'lastsync', 'serialnumber',
+                'OU'
+        )
+
         try:
             # Initiate subprocess and process commands
-            _gam_call = subprocess.run(_cmdlist)
+            _gam_call = subprocess.run(_args)
             _gam_output = str(_gam_call)
             # Format each device in the GAM output with removed trails
             _gam_output = _gam_output.split('\\r\\n')
@@ -103,9 +99,29 @@ class Inventory(Datestring):
             _output = [
                 i for i in _gam_output if not 'print' in i and not 'stderr' in i
             ]
-            return set(output)
+            self.all_cros = set(output)
 
-    def set_
+    @property
+    def active_devices(self):
+        return self._active_devices
+    
+    @active_devices.setter(self)
+    def active_devices(self):
+        ''' Pass arguments to GAM and redirect stdout to parse
+        the output of devices that are recieved. 
+        Get all cros devices in the domain in tuple. '''
+
+        # Fetch only active crome os devices in the domain
+        _args = (gam_path, 'print',
+                'cros', 'query',
+                'sync:' + str(Datestring.preset + '..' + Datestring.past), 
+                'fields', 'status',
+                'lastsync', 'serialnumber',
+                'orderby', 'lastsync',
+                'status', 'serialnumber',
+                'OU'
+        )
+
 
 
 class LocalFileCreator():
