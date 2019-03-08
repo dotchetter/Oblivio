@@ -60,40 +60,32 @@ class Inventory(Datestring):
         
         # Instanciate Datestring Object
         Datestring.__init__(self, delta = delta)
-
-        # Get all devices in the domain as set()
-        self.all_cros = self.get_cros(_arg_list, query = 'all')     # MOVE OUTSIDE OF CLASS
-
-        # Get only the active devices in the domain as set()
-        self.active_cros = self.get_cros(_arg_list, query = 'active')       # MOVE OUTSIDE OF CLASS
+        self._gam_path = gam_path
 
     @property
-    def all_devices(self):
-        return self._all_devices
-
-    @all_devices.setter
     def all_devices(self):
         ''' Pass arguments to GAM and redirect stdout to 
         parse the output of devices that are recieved. 
         Get all cros devices in the domain in tuple. '''
 
         # Fetch all crome os devices in the domain
-        _cmd = (gam_path, 'print',
+        _cmd = (self._gam_path, 'print',
                 'cros', 'orderby',  
                 'lastsync', 'status',
                 'fields', 'status', 
                 'lastsync', 'serialnumber',
                 'OU'
         )
-        try:
-            self._all_devices = set(output)
-
+        # Call method to pass arguments to GAM
+        # Set the property to the returned list object as a set()
+        return set(self.init_gam(_cmd))
+    
     @property
     def active_devices(self):
         return self._active_devices
     
     @active_devices.setter
-    def active_devices(self):
+    def active_devices(self, active_devices):
         ''' Pass arguments to GAM and redirect stdout 
         to parse the output of devices that are recieved. 
         Get all cros devices in the domain in tuple. '''
@@ -111,14 +103,14 @@ class Inventory(Datestring):
 
         # Call method to pass arguments to GAM
         # Set the property to the returned list object as a set()
-        set(self._active_devices) = self.init_gam(_cmd)
+        self._active_devices = set(self.init_gam(_cmd))
 
     @property
     def inactive_devices(self):
         return self._inactive_devices
 
     @inactive_devices.setter
-    def inactive_devices(self):
+    def inactive_devices(self, inactive_devices):
         ''' Field containing a subtraction of the active
         devices from all devices, leaving only the inactive 
         devices in a set() '''
@@ -131,7 +123,7 @@ class Inventory(Datestring):
         return self._provisioned
     
     @provisioned.setter
-    def provisioned(self):
+    def provisioned(self, provisioned):
         ''' Field containing devices that were found to be
         inactive and are provisioned in the domain '''
 
@@ -141,40 +133,41 @@ class Inventory(Datestring):
 
     @property
     def deprovisioned(self):
-        return self._provisioned
+        return self._deprovisioned
     
     @deprovisioned.setter
-    def deprovisioned(self):
+    def deprovisioned(self, deprovisioned):
         ''' Field containing devices that were found to be
         inactive and are deprovisioned in the domain '''
 
         # Comprehend list with only the deprovisioned inactive devices
-        __prov = [x for x in self._inactive_devices if 'deprovisioned' in i]
-        self._provisioned = tuple(__prov)
+        __deprov = [x for x in self._inactive_devices if 'deprovisioned' in i]
+        self._deprovisioned = tuple(__deprov)
 
     @property
     def disabled(self):
-        return self._provisioned
+        return self._disabled
     
     @disabled.setter
-    def disabled(self):
+    def disabled(self, disabled):
         ''' Field containing devices that were found to be
         inactive and are disabled in the domain '''
 
         # Comprehend list with only the disabled inactive devices
         __prov = [x for x in self._inactive_devices if 'disabled' in i]
-        self._provisioned = tuple(__prov)
+        self._disabled = tuple(__prov)
 
     def init_gam(self, cmdlist):
         '''Process a series of commands passed 
         to subprocess. Return tuple with output. '''
 
         # Initiate subprocess and process commands
-        _gam_call = subprocess.run(_args)
-        _gam_output = str(_gam_call)
+        try:
+            _gam_call = subprocess.run(cmdlist)
+            _gam_output = str(_gam_call)
         
-        # Format each device in the GAM output with removed trails
-        _gam_output = _gam_output.split('\\r\\n')
+            # Format each device in the GAM output with removed trails
+            _gam_output = _gam_output.split('\\r\\n')
         except Exception as e:
             raise Exception(e)
         else:
