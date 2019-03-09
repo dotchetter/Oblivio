@@ -61,6 +61,12 @@ class Inventory(Datestring):
         # Instanciate Datestring Object
         Datestring.__init__(self, delta = delta)
         self._gam_path = gam_path
+        self._all_devices = None
+        self._active_devices = None
+        self._inactive_devices = None
+        self._provisioned = None
+        self._deprovisioned = None
+        self._disabled = None
 
     @property
     def all_devices(self):
@@ -78,22 +84,18 @@ class Inventory(Datestring):
         )
         # Call method to pass arguments to GAM
         # Set the property to the returned list object as a set()
-        return set(self.init_gam(_cmd))
+        self._all_devices = set(self.init_gam(_cmd))
     
     @property
     def active_devices(self):
-        return self._active_devices
-    
-    @active_devices.setter
-    def active_devices(self, active_devices):
         ''' Pass arguments to GAM and redirect stdout 
         to parse the output of devices that are recieved. 
         Get all cros devices in the domain in tuple. '''
 
         # Fetch only active crome os devices in the domain
-        _cmd = (gam_path, 'print',
+        _cmd = (self._gam_path, 'print',
                 'cros', 'query',
-                'sync:' + str(Datestring.preset + '..' + Datestring.past), 
+                'sync:' + str(self.past + '..' + self.present), 
                 'fields', 'status',
                 'lastsync', 'serialnumber',
                 'orderby', 'lastsync',
@@ -107,55 +109,39 @@ class Inventory(Datestring):
 
     @property
     def inactive_devices(self):
-        return self._inactive_devices
-
-    @inactive_devices.setter
-    def inactive_devices(self, inactive_devices):
-        ''' Field containing a subtraction of the active
-        devices from all devices, leaving only the inactive 
+        ''' Field containing a subtraction of all active
+        devices from all_devices, leaving only the inactive 
         devices in a set() '''
 
         # Subract the active devices from all devices to get inactive
-        self._inactive_devices = (self._all_devices - self._active_devices)
+        return (self._all_devices - self._active_devices)
 
     @property
     def provisioned(self):
-        return self._provisioned
-    
-    @provisioned.setter
-    def provisioned(self, provisioned):
         ''' Field containing devices that were found to be
         inactive and are provisioned in the domain '''
 
         # Comprehend list with only the provisioned inactive devices
         __prov = [x for x in self._inactive_devices if 'provisioned' in i]
-        self._provisioned = tuple(__prov)
+        return tuple(__prov)
 
     @property
     def deprovisioned(self):
-        return self._deprovisioned
-    
-    @deprovisioned.setter
-    def deprovisioned(self, deprovisioned):
         ''' Field containing devices that were found to be
         inactive and are deprovisioned in the domain '''
 
         # Comprehend list with only the deprovisioned inactive devices
         __deprov = [x for x in self._inactive_devices if 'deprovisioned' in i]
-        self._deprovisioned = tuple(__deprov)
+        return tuple(__deprov)
 
     @property
     def disabled(self):
-        return self._disabled
-    
-    @disabled.setter
-    def disabled(self, disabled):
         ''' Field containing devices that were found to be
         inactive and are disabled in the domain '''
 
         # Comprehend list with only the disabled inactive devices
         __prov = [x for x in self._inactive_devices if 'disabled' in i]
-        self._disabled = tuple(__prov)
+        return tuple(__prov)
 
     def init_gam(self, cmdlist):
         '''Process a series of commands passed 
@@ -163,7 +149,7 @@ class Inventory(Datestring):
 
         # Initiate subprocess and process commands
         try:
-            _gam_call = subprocess.run(cmdlist)
+            _gam_call = subprocess.run(cmdlist, capture_output = True)
             _gam_output = str(_gam_call)
         
             # Format each device in the GAM output with removed trails
@@ -172,9 +158,7 @@ class Inventory(Datestring):
             raise Exception(e)
         else:
             # Comprehend a list with the output devices
-            _output = [
-                i for i in _gam_output if not 'print' in i and not 'stderr' in i
-            ]
+            return [i for i in _gam_output if not 'print' in i and not 'stderr' in i]
 
 
 class LocalFileCreator():
