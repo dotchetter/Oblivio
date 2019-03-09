@@ -61,12 +61,6 @@ class Inventory(Datestring):
         # Instanciate Datestring Object
         Datestring.__init__(self, delta = delta)
         self._gam_path = gam_path
-        self._all_devices = None
-        self._active_devices = None
-        self._inactive_devices = None
-        self._provisioned = None
-        self._deprovisioned = None
-        self._disabled = None
 
     @property
     def all_devices(self):
@@ -106,6 +100,7 @@ class Inventory(Datestring):
         # Call method to pass arguments to GAM
         # Set the property to the returned list object as a set()
         self._active_devices = set(self.init_gam(_cmd))
+        print(self._inactive_devices)
 
     @property
     def inactive_devices(self):
@@ -144,8 +139,7 @@ class Inventory(Datestring):
         return tuple(__prov)
 
     def init_gam(self, cmdlist):
-        '''Process a series of commands passed 
-        to subprocess. Return tuple with output. '''
+        '''Process a series of commands passed '''
 
         # Initiate subprocess and process commands
         try:
@@ -157,9 +151,11 @@ class Inventory(Datestring):
         except Exception as e:
             raise Exception(e)
         else:
-            # Comprehend a list with the output devices
-            return [i for i in _gam_output if not 'print' in i and not 'stderr' in i]
-
+            __output = [x for x in _gam_output]
+            for index, i in enumerate(__output):
+                if 'stderr' in i or 'CrOS' in i or 'stderr' in i:
+                    __output.remove(index)
+            return __output
 
 class LocalFileCreator():
     ''' Create an object that holds a list of inactive devices
