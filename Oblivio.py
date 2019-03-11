@@ -53,10 +53,10 @@ class Inventory(Datestring):
     consisting two tuples with a series of commands are passed
     to GAM and the output is then parsed. The instance of this 
     class will have fields that contain the inactive devices, 
-    all devices, and their status (deprovisioned, provisioned, 
+    all devices, and their status (deprovisioned, active, 
     disabled). '''
 
-    def __init__(self, delta = 10, gam_path = None):
+    def __init__(self, delta = 365, gam_path = None):
         
         # Instanciate Datestring Object
         Datestring.__init__(self, delta = delta)
@@ -78,8 +78,8 @@ class Inventory(Datestring):
         )
         # Call method to pass arguments to GAM
         # Set the property to the returned list object as a set()
-        self._all_devices = set(self.init_gam(_cmd))
-    
+        self._all_devices = self.init_gam(_cmd)
+            
     @property
     def active_devices(self):
         ''' Pass arguments to GAM and redirect stdout 
@@ -98,27 +98,28 @@ class Inventory(Datestring):
         )
 
         # Call method to pass arguments to GAM
-        # Set the property to the returned list object as a set()
-        self._active_devices = set(self.init_gam(_cmd))
-        print(self._inactive_devices)
+        # Set the property to the returned list object as List
+        self._active_devices = self.init_gam(_cmd)
 
     @property
     def inactive_devices(self):
         ''' Field containing a subtraction of all active
         devices from all_devices, leaving only the inactive 
-        devices in a set() '''
+        devices. '''
 
-        # Subract the active devices from all devices to get inactive
-        return (self._all_devices - self._active_devices)
+        self._inactive_devices = [
+            i for i in self._all_devices if not i in self._active_devices
+        ]
 
     @property
     def provisioned(self):
         ''' Field containing devices that were found to be
-        inactive and are provisioned in the domain '''
+        inactive and are active in the domain '''
 
-        # Comprehend list with only the provisioned inactive devices
-        __prov = [x for x in self._inactive_devices if 'provisioned' in i]
-        return tuple(__prov)
+        # Comprehend list with only the provisioned "inactive devices"
+        self._provisioned = [
+            i for i in self._inactive_devices if i[0] == 'ACTIVE'
+        ]
 
     @property
     def deprovisioned(self):
@@ -126,8 +127,9 @@ class Inventory(Datestring):
         inactive and are deprovisioned in the domain '''
 
         # Comprehend list with only the deprovisioned inactive devices
-        __deprov = [x for x in self._inactive_devices if 'deprovisioned' in i]
-        return tuple(__deprov)
+        self._deprovisioned = [
+            i for i in self._inactive_devices if i[0] == 'DEPROVISIONED'
+        ]
 
     @property
     def disabled(self):
@@ -135,8 +137,9 @@ class Inventory(Datestring):
         inactive and are disabled in the domain '''
 
         # Comprehend list with only the disabled inactive devices
-        __prov = [x for x in self._inactive_devices if 'disabled' in i]
-        return tuple(__prov)
+        self._disabled = [
+            i for i in self._inactive_devices if i[0] == 'DISABLED'
+        ]
 
     def init_gam(self, cmdlist):
         '''Process a series of commands passed '''
@@ -145,17 +148,22 @@ class Inventory(Datestring):
         try:
             _gam_call = subprocess.run(cmdlist, capture_output = True)
             _gam_output = str(_gam_call)
-        
             # Format each device in the GAM output with removed trails
             _gam_output = _gam_output.split('\\r\\n')
         except Exception as e:
             raise Exception(e)
         else:
-            __output = [x for x in _gam_output]
-            for index, i in enumerate(__output):
-                if 'stderr' in i or 'CrOS' in i or 'stderr' in i:
-                    __output.remove(index)
-            return __output
+            __devicelist = [
+                i for i in _gam_output if not 'CompletedProcess' in i and not 'CrOS' in i
+            ]
+            # Remove trailing parenthesis, last index in the list
+            __devicelist.pop(-1)
+            # Remove Device ID string from each device
+            for index in range(len(__devicelist)):
+                __devicelist[index] = __devicelist[index].split(',')
+                # Removing device ID strings
+                __devicelist[index] = __devicelist[index][1:]
+            return __devicelist
 
 class LocalFileCreator():
     ''' Create an object that holds a list of inactive devices
