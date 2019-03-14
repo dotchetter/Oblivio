@@ -4,7 +4,7 @@
 '''
 MIT License
 
-Copyright (c) 2018 
+Copyright (c) 2019
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,18 +49,45 @@ class Inventory(Datestring):
     GAM with communicating commands to GAM via SubProcess
 
     Commands are passed to the CLI application GAM, to 
-    fetch devices from the G Suite domain. A tuple of queries
-    consisting two tuples with a series of commands are passed
-    to GAM and the output is then parsed. The instance of this 
-    class will have fields that contain the inactive devices, 
-    all devices, and their status (deprovisioned, active, 
-    disabled). '''
+    fetch devices from the G Suite domain. Two tuples with
+    a series of commands are passed to GAM and the output 
+    is then parsed. The instance of this class will have 
+    fields that contain the inactive devices, all devices,
+    and their status (deprovisioned, active, disabled). 
 
-    def __init__(self, delta = 365, gam_path = None):
+    Attributes:
+    
+    all_devices --      All devices in the domain in a List
+    
+    active_devices --   All devices in the domain that have been 
+                        synced within the given timeframe
+    
+    inactive_devices -- Subtracted devices from all_devices that were 
+                        not found in active_devices. This leaves them
+                        as inactive, that is, in the domain but not 
+                        used in the provided timeframe.
+    
+    provisioned --      Devices in inactive_devices that are set as 
+                        ACTIVE, meaning provisioned in the domain.
+    
+    deprovisioned --    Devices in inactive_devices that are set as 
+                        DEPROVISIONED
+    
+    disabled --         Devices in inactive_devices that are set as
+                        DISABLED '''
+
+    def __init__(self, delta = 10, gam_path = None):
         
         # Instanciate Datestring Object
-        Datestring.__init__(self, delta = delta)
+        Datestring.__init__(self, delta = int(delta))
         self._gam_path = gam_path
+        # Set properties
+        self.all_devices
+        self.active_devices
+        self.inactive_devices
+        self.provisioned
+        self.deprovisioned
+        self.disabled
 
     @property
     def all_devices(self):
@@ -76,6 +103,7 @@ class Inventory(Datestring):
                 'lastsync', 'serialnumber',
                 'OU'
         )
+
         # Call method to pass arguments to GAM
         # Set the property to the returned list object as a set()
         self._all_devices = self.init_gam(_cmd)
@@ -142,7 +170,12 @@ class Inventory(Datestring):
         ]
 
     def init_gam(self, cmdlist):
-        '''Process a series of commands passed '''
+        ''' Process a series of commands passed. 
+        A list object with nested lists is returned with the 
+        devices. The first index in the parent list is removed,
+        as it contains only header data. For each sublist, the 
+        first index is removed as it contains unwanted 
+        DeviceID string. '''
 
         # Initiate subprocess and process commands
         try:
@@ -165,7 +198,7 @@ class Inventory(Datestring):
                 __devicelist[index] = __devicelist[index][1:]
             return __devicelist
 
-class LocalFileCreator():
+class LocalFileCreator(Inventory):
     ''' Create an object that holds a list of inactive devices
     and format them in a CSV format. Methods for creating the CSV 
     file locally, and uploading the CSV to G Suite using GAM as 
@@ -208,8 +241,6 @@ class LocalFileCreator():
         else:
             return 'Upload complete'
 
-
-
 def err_handler(exception_type = None, task = None):
     ''' Handle errors on exception and stop execution '''
 
@@ -222,9 +253,13 @@ def err_handler(exception_type = None, task = None):
         ) 
     elif task == 'gam_installed':
         msg = 'Oblivio: GAM was not found to be installed. Check path.'
+    elif task == 'oauthfile':
+        msg = ('Oblivio: No user was given, and I was unable to parse ' +
+            'the file containing user configured with GAM. Please use the user switch.'
+        )
     elif task == 'get_user_id':
         msg = ('Oblivio: An error occured while parsing the oauth2.txt file for ' + 
-        'G suite username, username was not found in expected key.'
+            'G suite username, username was not found in expected key.'
         )
     elif task == 'not_authorized':
         msg = 'Oblivio: GAM is not authorized to upload files with this project.'
