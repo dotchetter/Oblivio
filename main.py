@@ -115,6 +115,8 @@ if __name__ == '__main__':
     # If commandline argument is 'default' on user parameter, fetch it
     if ARGS.user == 'default':
         user_id = get_user_id(f'{ARGS.gampath}\\oauth2.txt')
+    else:
+        user_id = ARGS.user
 
     # If timedelda is not set by commandline argument, use default
     if not ARGS.timedelta:
@@ -125,29 +127,38 @@ if __name__ == '__main__':
     # Create instance of Inventory object and set properties
     oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}\\gam.exe')
 
+    # Create instance of Localfile object to 
+    file = Localfile(oblivio, ARGS.outpath, user_id)
+
     # If commandline argument '-verbose' is given, print to screen
     # and do not upload or create any files on the system.
 if ARGS.verbose:
-    print('\n','ALL DEVICES:', len(oblivio._inactive_devices), '\n')
-    for i in oblivio._all_devices:
+    print('\n','ALL DEVICES:', len(oblivio.inactive_devices), '\n')
+    for i in oblivio.all_devices:
         print(i, end = '\n')
 
-    print('\n','ACTIVE DEVICES:', len(oblivio._active_devices), '\n')
-    for i in oblivio._active_devices:
+    print('\n','ACTIVE DEVICES:', len(oblivio.active_devices), '\n')
+    for i in oblivio.active_devices:
         print(i, end = '\n')
     
-    print('\n','INACTIVE DEVICES:', len(oblivio._inactive_devices),'\n')
-    for i in oblivio._inactive_devices:
+    print('\n','INACTIVE DEVICES:', len(oblivio.inactive_devices),'\n')
+    for i in oblivio.inactive_devices:
         print(i, end = '\n')
     
-    print('\n','PROVISIONED DEVICES:', len(oblivio._provisioned), '\n')
-    for i in oblivio._provisioned:
+    print('\n','PROVISIONED DEVICES:', len(oblivio.provisioned), '\n')
+    for i in oblivio.provisioned:
         print(i, end = '\n')
     
-    print('\n','DEPROVISIONED DEVICES:', len(oblivio._deprovisioned), '\n')
-    for i in oblivio._deprovisioned:
+    print('\n','DEPROVISIONED DEVICES:', len(oblivio.deprovisioned), '\n')
+    for i in oblivio.deprovisioned:
         print(i, end = '\n')
     
-    print('\n','DISABLED DEVICES:', len(oblivio._disabled), '\n')
-    for i in oblivio._disabled:
+    print('\n','DISABLED DEVICES:', len(oblivio.disabled), '\n')
+    for i in oblivio.disabled:
         print(i, end = '\n')
+    
+else:
+    # If Verbose switch is not used, create the local file and upload it
+    file_exists = file.create_file()
+    if file_exists == True:
+        upload_successful = file.upload_file()
