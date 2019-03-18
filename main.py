@@ -31,7 +31,6 @@ import json
 import argparse
 from Oblivio import *
 
-<<<<<<< HEAD
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
     description = '''Oblivio v.1.0 by Simon Olofsson.
@@ -69,24 +68,7 @@ def verify_prereq(location):
     fail = None
     
     # Verify platform compatibility
-=======
-# Set GAM as installed in default directory in user's $home.
-GAM = os.getenv("HOME") + '/bin/gam/gam'
-# Set GAMDIR as the directory where GAM is installed per default
-GAMDIR = GAM.strip('gam')
-# Set Oblivio dir inside the GAM dir
-OBLIVIODIR = GAMDIR + 'Oblivio'
-
-def main():
-    
->>>>>>> 620da4a9805a947ad72a1123aac081e62ccfa2ff
-    assert (
-        'darwin' in sys.platform
-    ), err_handler(exception_type = Exception, task = 'platform')
-    
-    # Check that GAM resides in the presumed directory
-<<<<<<< HEAD
-    if not 'win32' in sys.platform:
+    if not 'darwin' in sys.platform:
         err_handler(exception_type = Exception, task = 'platform')
         fail = True
     
@@ -94,64 +76,9 @@ def main():
     if os.path.isfile(f'{location}') == False:
         err_handler(exception_type = Exception, task = 'gam_installed',)
         fail = True
-=======
-    assert(
-        os.path.isfile(GAM)
-    ), err_handler(exception_type = Exception, task = 'gam_installed')
-
-    # Check that oauth2.txt file with credentials exists
-    assert(
-        os.path.isfile(GAMDIR + 'oauth2.txt')
-    ), err_handler(exception_type = Exception, task = 'gam_installed')
-
-    # Check that Oblivio directory exists, otherwise, create it
-    if os.path.isdir(OBLIVIODIR) == False:
-        os.mkdir(OBLIVIODIR)
-    
-    # Get user ID to use when calling GAM for file uploads to Google
-    user_id = get_user_id()
-
-    # Datestring instance with today's date and 10 days ago
-    dateobj = Datestring()
-    
-    # Fetch lists of chrome devices from G Suite with GAM
-    active_crosdev = get_cros(
-        dateobj.present, dateobj.past, domain_wide = False
-    )
-
-    all_crosdev = get_cros(
-        dateobj.present, dateobj.past, domain_wide = True
-    )
-
-    # Calculate the inactive devices by subtracting the active ones
-    if len(active_crosdev) != len(all_crosdev):
-        inactive_crosdev = compute_diff(active_crosdev, all_crosdev)
-        # Instanciate object to upload data to Google Drive
-        oblivio = InactiveDevicesCsv(
-            inactive_crosdev, OBLIVIODIR, GAM, GAMDIR, user_id, dateobj
-        )
-        # Create csv locally containing all inactive devices
-        oblivio.create_csv()
-        # Upload csv
-        oblivio.upload_csv()
-
-    else:
-        inactive_crosdev = None
-        print(
-            'Oblivio: No inactive devices found for the current timespan.'
-        )
-
-
-def get_user_id():
-    ''' Parse oauth2.txt file that GAM uses and fetch the google 
-    username to be used when calling GAM to upload the Oblivio.csv 
-    file '''
-    
-    count = 0
->>>>>>> 620da4a9805a947ad72a1123aac081e62ccfa2ff
     
     # Check that oauth2.txt file with credentials exists
-    if os.path.isfile(f'{location}\\oauth2.txt') == False:
+    if os.path.isfile(f'{location}/oauth2.txt') == False:
         err_handler(exception_type = Exception, task = 'oauthfile')
         fail = True
 
@@ -187,7 +114,7 @@ if __name__ == '__main__':
 
     # If commandline argument is 'default' on user parameter, fetch it
     if ARGS.user == 'default':
-        user_id = get_user_id(f'{ARGS.gampath}\\oauth2.txt')
+        user_id = get_user_id(f'{ARGS.gampath}/oauth2.txt')
     else:
         user_id = ARGS.user
 
@@ -200,7 +127,6 @@ if __name__ == '__main__':
     # Create instance of Inventory object and set properties
     oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}')
 
-<<<<<<< HEAD
     # Create instance of Localfile object to 
     file = Localfile(oblivio, ARGS.outpath, user_id)
 
@@ -236,63 +162,3 @@ else:
     file_exists = file.create_file()
     if file_exists == True:
         upload_successful = file.upload_file()
-=======
-    if domain_wide == True:
-        gam_command = [
-            GAM, 'print', 'cros', 'orderby', 'lastsync', 'status',
-            'fields', 'status', 'lastsync', 'serialnumber', 'OU'
-        ]
-    else:
-        gam_command = [
-            GAM, 'print', 'cros', 'query', 
-            'sync:' + str(then + '..' + today), 
-            'fields', 'status', 'lastsync', 'serialnumber', 'orderby', 
-            'lastsync', 'status', 'serialnumber', 'OU'
-        ]
-
-    try:
-        # Call GAM and run command depending on 'domain wide' or not
-        gam_call = subprocess.run(gam_command, capture_output = True)
-        gam_output = str(gam_call)
-        # Format each device in the GAM output with removed clutter
-        gam_output = gam_output.split('\\n')
-
-    except:
-        err_handler(exception_type = RuntimeError, task = 'gam_call')
-
-    else:
-        # # Comprehend a list containing all devices in the GAM output
-        for i in gam_output:
-            if not 'stderr' in i and not 'print' in i:
-                devices_arr.append(i)
-
-        return devices_arr
-
-
-def compute_diff(active_devices, all_devices):
-    ''' Calculate the inactive devices in the given time frame.
-    List is made containing only the devices not occurring in 
-    both all and active devices. This yields the devices not used
-    in the given time frame. '''
-    inactive_devices = [
-        i for i in all_devices if not i in active_devices and not 'DEPROVISIONED' in i
-    ]
-
-    if len(inactive_devices):
-        # Delete last entry which is always empty
-        del inactive_devices[-1]
-        # Keep only last sync date and serialnumber for each index
-        for i in range(len(inactive_devices)):
-            inactive_devices[i] = inactive_devices[i].split(',')
-            inactive_devices[i] = inactive_devices[i][2:]
-        
-        # Add header tag at the beginning of the list
-        _phrase = ['Last used', 'Serialnumber', 'Organizational unit']
-        inactive_devices.insert(0, _phrase)
-        return inactive_devices
-    else:
-        return None
-   
-if __name__ == '__main__':
-    main()
->>>>>>> 620da4a9805a947ad72a1123aac081e62ccfa2ff
