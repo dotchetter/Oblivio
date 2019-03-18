@@ -125,7 +125,7 @@ if __name__ == '__main__':
         __delta = ARGS.timedelta
 
     # Create instance of Inventory object and set properties
-    oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}')
+    oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}/gam')
 
     # Create instance of Localfile object to 
     file = Localfile(oblivio, ARGS.outpath, user_id)
