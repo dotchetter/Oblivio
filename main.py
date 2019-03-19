@@ -30,6 +30,7 @@ import sys
 import json
 import argparse
 from Oblivio import *
+from shutil import rmtree
 
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
@@ -48,7 +49,7 @@ help_strings = (
     'True or False. False will still create a local file.',
     'Remove the local file after upload.',
     '(int) Number of days unused for a device to be included. Default is 10.',
-    'See the output from Oblivio in the shell. No upload or file creation.'
+    'Get Oblivio output in the shell. No local file is created or uploaded.'
 )
 
 # Add commandline switches
@@ -125,10 +126,13 @@ if __name__ == '__main__':
         __delta = ARGS.timedelta
 
     # Create instance of Inventory object and set properties
+    print('Running GAM with Oblivio magic. This could take some time.')
     oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}\\gam.exe')
 
-    # Create instance of Localfile object to 
-    file = Localfile(oblivio, ARGS.outpath, user_id)
+
+    # Unless '-verbose' parameter given, create folder and output file
+    if not ARGS.verbose == True:
+        file = Localfile(oblivio, ARGS.outpath, user_id)
 
     # If commandline argument '-verbose' is given, print to screen
     # and do not upload or create any files on the system.
@@ -141,7 +145,7 @@ if ARGS.verbose:
     for i in oblivio.active_devices:
         print(i, end = '\n')
     
-    print('\n','INACTIVE DEVICES:', len(oblivio.inactive_devices),'\n')
+    print('\n','INACTIVE DEVICES:', len(oblivio.inactive_devices), '\n')
     for i in oblivio.inactive_devices:
         print(i, end = '\n')
     
@@ -162,3 +166,7 @@ else:
     file_exists = file.create_file()
     if file_exists == True:
         upload_successful = file.upload_file()
+    # If 'nofile' parameter is specified, remove the inventory file
+    if ARGS.nofile:
+        rmtree(ARGS.outpath)
+    print('Finished.')
