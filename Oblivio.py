@@ -209,7 +209,8 @@ class Localfile():
         # User ID when uploading file to Google Drive with GAM
         self._username = user_id
 
-        # Assert the existence of the output directory
+        # Assert the existence of the output directory, create
+        # directory if non-existent
         if os.path.isdir(outpath) == False:
             os.mkdir(outpath)
 
@@ -263,9 +264,8 @@ class Localfile():
             self._inventoryobj.gam_path, 'user',
             self._username, 'add',
             'drivefile', 'localfile', 
-            self._outpath, 'convert'
+            self._outpath, 'convert', 'parentname', 'oblivio'
         )
-        print('DEBUG: ', self._outpath, _cmd)
         try:
             # Call GAM to upload the CSV to Google 
             _gam_call = subprocess.run(_cmd, capture_output = True)
