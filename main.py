@@ -137,7 +137,7 @@ if __name__ == '__main__':
     # If commandline argument '-verbose' is given, print to screen
     # and do not upload or create any files on the system.
 if ARGS.verbose:
-    print('\n','ALL DEVICES:', len(oblivio.inactive_devices), '\n')
+    print('\n','ALL DEVICES:', len(oblivio.all_devices), '\n')
     for i in oblivio.all_devices:
         print(i, end = '\n')
 
