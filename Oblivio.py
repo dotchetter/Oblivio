@@ -226,26 +226,41 @@ class Localfile():
 
         try:
             wb = xlsxwriter.Workbook(self._outpath)
-            ws_all = wb.add_worksheet('All inactive devices')
-            ws_provisioned = wb.add_worksheet('Provisioned')
-            ws_deprovisioned = wb.add_worksheet('Deprovisioned')
-            ws_disabled = wb.add_worksheet('Disabled')
+            
+            # Worksheet containing all CROS devices that were unused
+            ws_all = wb.add_worksheet('Unused devices')
+            ws_all.set_column('A:D', 30)
+
+            # Worksheet containing all CROS devices that are still provisioned
+            ws_provisioned = wb.add_worksheet('Unused & Provisioned')
+            ws_provisioned.set_column('A:D', 30)
+            
+            # Worksheet containing all CROS devices that are deprovisioned
+            ws_deprovisioned = wb.add_worksheet('Unused & Deprovisioned')
+            ws_deprovisioned.set_column('A:D', 30)
+            
+            # Worksheet containing all CROS devices that are disabled
+            ws_disabled = wb.add_worksheet('Unused & Disabled')
+            ws_disabled.set_column('A:C', 30)
 
             # Populate all inactive devices in the first sheet
             for index, string in enumerate(HEAD):
                 ws_all.write_row(0, index, string)
             for index, device in enumerate(self._inventoryobj.inactive_devices):
                 ws_all.write_row((index + 1), 0, device)
+            
             # Populate the 'Provisioned' sheet in the file
             for index, string in enumerate(HEAD):
                 ws_provisioned.write_row(0, index, string)
             for index, device in enumerate(self._inventoryobj.provisioned):
                 ws_provisioned.write_row((index + 1), 0, device)
+            
             # Populate the 'Deprovisioned' sheet in the file
             for index, string in enumerate(HEAD):
                 ws_deprovisioned.write_row(0, index, string)
             for index, device in enumerate(self._inventoryobj.deprovisioned):
                 ws_deprovisioned.write_row((index + 1), 0, device)
+            
             # Populate the 'Disabled' sheet in the file
             for index, string in enumerate(HEAD):
                 ws_disabled.write_row(0, index, string)
