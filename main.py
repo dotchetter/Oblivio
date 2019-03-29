@@ -129,7 +129,6 @@ if __name__ == '__main__':
     print('Running GAM with Oblivio magic. This could take some time.')
     oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}\\gam.exe')
 
-
     # Unless '-verbose' parameter given, create folder and output file
     if not ARGS.verbose == True:
         file = Localfile(oblivio, ARGS.outpath, user_id)
