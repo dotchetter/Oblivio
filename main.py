@@ -69,17 +69,20 @@ def verify_prereq(location):
     
     # Verify platform compatibility
     if not 'darwin' in sys.platform:
-        err_handler(exception_type = Exception, task = 'platform')
+        print('This version of Oblivio is designed for macOS only.'
+            'You can find the version for Linux and Windows on'
+            'www.github.com/dotchetter/oblivio.'
+        )
         fail = True
     
     # Check that GAM resides in the directory
-    if os.path.isfile(f'{location}') == False:
-        err_handler(exception_type = Exception, task = 'gam_installed',)
+    if os.path.isfile(f'{location}/gam') == False:
+        print('Gam not found in', location)
         fail = True
     
     # Check that oauth2.txt file with credentials exists
     if os.path.isfile(f'{location}/oauth2.txt') == False:
-        err_handler(exception_type = Exception, task = 'oauthfile')
+        print('oauth file not found in', location)
         fail = True
 
     if not fail:
@@ -141,7 +144,7 @@ if ARGS.verbose:
     for i in oblivio.active_devices:
         print(i, end = '\n')
     
-    print('\n','INACTIVE DEVICES:', len(oblivio.inactive_devices),'\n')
+    print('\n','INACTIVE DEVICES:', len(oblivio.inactive_devices), '\n')
     for i in oblivio.inactive_devices:
         print(i, end = '\n')
     
