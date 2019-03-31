@@ -253,7 +253,7 @@ class Localfile():
             # Close file
             wb.close()
         except Exception as e:
-            print(e) # Debug 
+            print(e)
         else:
             return True
 
@@ -263,9 +263,8 @@ class Localfile():
             self._inventoryobj.gam_path, 'user',
             self._username, 'add',
             'drivefile', 'localfile', 
-            self._outpath, 'convert'
+            self._outpath, 'convert', 'parentname', 'oblivio'
         )
-        print('DEBUG: ', self._outpath, _cmd)
         try:
             # Call GAM to upload the CSV to Google 
             _gam_call = subprocess.run(_cmd, capture_output = True)
