@@ -118,7 +118,7 @@ class Inventory(Datestring):
             _gam_call = subprocess.run(cmdlist, capture_output = True)
             _gam_output = str(_gam_call)
             # Format each device in the GAM output with removed trails
-            _gam_output = _gam_output.split('\\r\\n')
+            _gam_output = _gam_output.split('/r/n')
         except Exception as e:
             raise Exception(e)
         else:
@@ -203,7 +203,7 @@ class Localfile():
        
         self._inventoryobj = inventoryobj
         # Filepath where to save the outputfile
-        self._outpath = f'{outpath}\\Oblivio {self._inventoryobj.present}.xlsx'
+        self._outpath = f'{outpath}/Oblivio {self._inventoryobj.present}.xlsx'
         # User ID when uploading file to Google Drive with GAM
         self._username = user_id
 

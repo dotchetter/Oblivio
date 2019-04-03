@@ -78,12 +78,12 @@ def verify_prereq(location):
         fail = True
     
     # Check that GAM resides in the directory
-    if os.path.isfile(f'{location}\\gam') == False:
+    if os.path.isfile(f'{location}/gam') == False:
         err_handler(exception_type = Exception, task = 'gam_installed',)
         fail = True
     
     # Check that oauth2.txt file with credentials exists
-    if os.path.isfile(f'{location}\\oauth2.txt') == False:
+    if os.path.isfile(f'{location}/oauth2.txt') == False:
         err_handler(exception_type = Exception, task = 'oauthfile')
         fail = True
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
     # If commandline argument is 'default' on user parameter, fetch it
     if ARGS.user == 'default':
-        user_id = get_user_id(f'{ARGS.gampath}\\oauth2.txt')
+        user_id = get_user_id(f'{ARGS.gampath}/oauth2.txt')
     else:
         user_id = ARGS.user
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     )
 
     # Create instance of Inventory object and set properties
-    oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}\\gam')
+    oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}/gam')
 
     # Unless '-verbose' parameter given, create folder and output file
     if not ARGS.verbose == True:
