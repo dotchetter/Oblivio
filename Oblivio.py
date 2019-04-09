@@ -154,7 +154,7 @@ class Inventory(Datestring):
 
         # Comprehend list with all the inactive devices
         self._inactive_devices = [
-            i for i in self._all_devices if not i[2] in self._active_devices
+            i for i in self._all_devices if not i in self._active_devices
         ]
         return self._inactive_devices
 
