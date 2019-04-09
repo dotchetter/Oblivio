@@ -76,10 +76,9 @@ class Inventory(Datestring):
 
         # Fetch all crome os devices in the domain
         _cmd = (self._gam_path, 'print',
-                'cros', 'orderby',  
-                'lastsync', 'status',
-                'fields', 'status', 
-                'lastsync', 'serialnumber',
+                'cros', 'orderby', 
+                'status', 'fields',
+                'status', 'serialnumber', 
                 'OU'
         )
 
@@ -97,10 +96,9 @@ class Inventory(Datestring):
                 'cros', 'query',
                 'sync:' + str(self.past + '..' + self.present), 
                 'fields', 'status',
-                'lastsync', 'serialnumber',
-                'orderby', 'lastsync',
-                'status', 'serialnumber',
-                'OU'
+                'serialnumber',
+                'orderby', 'status', 
+                'serialnumber', 'OU'
         )
 
         # Call method to pass arguments to GAM
@@ -222,7 +220,7 @@ class Localfile():
         disabled devices all get their own workbook in the
         xlsx file. '''
 
-        HEAD = [['Status'], ['Last used'], ['Serialnumber'], ['OU']]
+        HEAD = [['Status'], ['Serialnumber'], ['OU']]
 
         try:
             wb = xlsxwriter.Workbook(self._outpath)
@@ -286,7 +284,7 @@ class Localfile():
             _gam_call = subprocess.run(_cmd, capture_output = True)
             if 'unauthorized_client' in str(_gam_call):        
                 print('It seems as though you have not authorized GAM to '
-                    'perform this query. Ensure that your GAM project is '
+                    'upload files. Ensure that your GAM project is '
                     'authorized with the Google Drive API.'
                 )
         except Exception as e:

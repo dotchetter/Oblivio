@@ -29,6 +29,7 @@ import os
 import sys
 import json
 import argparse
+from datetime import datetime
 from Oblivio import *
 from shutil import rmtree
 
@@ -70,6 +71,9 @@ argument_parser.add_argument('-verbose', action = 'store_true', help = help_stri
 
 # Parse all arguments given in to list object
 ARGS = argument_parser.parse_args()
+
+# Timestamp in UNIX time for the beginning of execution
+start = datetime.now().timestamp()
 
 def verify_prereq(location):
 
@@ -132,8 +136,12 @@ if __name__ == '__main__':
     else:
         __delta = ARGS.timedelta
 
+    print(' Running GAM with Oblivio magic. This will take some time, ','\n',
+        'as we fetch every single Chrome OS device in your entire domain.','\n',
+        'Normal runtime: < 10 minutes for 25000 CROS devices.'
+    )
+
     # Create instance of Inventory object and set properties
-    print('Running GAM with Oblivio magic. This could take some time.')
     oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}\\gam.exe')
 
     # Unless '-verbose' parameter given, create folder and output file
@@ -168,4 +176,5 @@ else:
     # If 'nofile' parameter is specified, remove the inventory file
     if ARGS.nofile:
         rmtree(ARGS.outpath)
-    print('Finished.')
+    fin = datetime.now().timestamp()
+    print(f'Finished in {(fin - start)} seconds.')
