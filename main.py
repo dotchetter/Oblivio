@@ -34,32 +34,39 @@ from shutil import rmtree
 
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
-    description = '''Oblivio v.1.0 by Simon Olofsson.
-                    See command switches below. For extensive
-                    help on Oblivio, use the '-example' 
-                    switch or visit URL HERE '''
+    description = '''Oblivio v.1.0 by Simon Olofsson. See separate
+                    technical manual on extensive help how to use Oblivio. 
+                    Example command: <Oblivio C:\\GAM C:\\Gam\\OblivioOutputFiles 
+                    default -timedelta 100> '''
 )
 
 # Add help strings to tuple
 help_strings = (
-    'See an example for how to use Oblivio',
-    'Install directory for GAM',
-    'Where Oblivio will store outputfiles',
-    'Email adress for the GAM G suite user',
-    'True or False. False will still create a local file.',
-    'Remove the local file after upload.',
+    'Directory where GAM is installed. '
+    '(example: <C:\\GAM>)',
+    
+    'Where Oblivio will store outputfiles. '
+    '(example: <C:\\GAM\\OblivioOutputFiles>)',
+    
+    'Email adress for the account where Oblivio will upload files to. '
+    '(example: <john.doe@gsuitedomain.com>, or <default> for the same '
+    'account that is authorized for GAM)',
+    
+    'True or False. False will still create a local file but remove '
+    'it after upload is complete.',
+
     '(int) Number of days unused for a device to be included. Default is 10.',
+
     'Get Oblivio output in the shell. No local file is created or uploaded.'
 )
 
 # Add commandline switches
-argument_parser.add_argument('-example', help = help_strings[0])
-argument_parser.add_argument('gampath', help = help_strings[1])
-argument_parser.add_argument('outpath', help = help_strings[2])
-argument_parser.add_argument('user', help = help_strings[3])
-argument_parser.add_argument('-nofile', action = 'store_true', help = help_strings[4])
-argument_parser.add_argument('-timedelta', help = help_strings[5])
-argument_parser.add_argument('-verbose', action = 'store_true', help = help_strings[6])
+argument_parser.add_argument('gampath', help = help_strings[0])
+argument_parser.add_argument('outpath', help = help_strings[1])
+argument_parser.add_argument('user', help = help_strings[2])
+argument_parser.add_argument('-nofile', action = 'store_true', help = help_strings[3])
+argument_parser.add_argument('-timedelta', help = help_strings[4])
+argument_parser.add_argument('-verbose', action = 'store_true', help = help_strings[5])
 
 # Parse all arguments given in to list object
 ARGS = argument_parser.parse_args()
@@ -129,38 +136,30 @@ if __name__ == '__main__':
     print('Running GAM with Oblivio magic. This could take some time.')
     oblivio = Inventory(delta = __delta, gam_path = f'{ARGS.gampath}\\gam.exe')
 
-
     # Unless '-verbose' parameter given, create folder and output file
     if not ARGS.verbose == True:
         file = Localfile(oblivio, ARGS.outpath, user_id)
 
-    # If commandline argument '-verbose' is given, print to screen
-    # and do not upload or create any files on the system.
+    # If commandline argument '-verbose' is given, print output to 
+    # screen and do not upload or create any files on the system.
 if ARGS.verbose:
-    print('\n','ALL DEVICES:', len(oblivio.all_devices), '\n')
-    for i in oblivio.all_devices:
-        print(i, end = '\n')
+    _dates = f'{oblivio.past} - {oblivio.present}'
 
-    print('\n','ACTIVE DEVICES:', len(oblivio.active_devices), '\n')
-    for i in oblivio.active_devices:
-        print(i, end = '\n')
-    
-    print('\n','INACTIVE DEVICES:', len(oblivio.inactive_devices), '\n')
+    print('\n',f'UNUSED DEVICES BETWEEN {_dates}: {len(oblivio.inactive_devices)}', '\n')
     for i in oblivio.inactive_devices:
         print(i, end = '\n')
     
-    print('\n','PROVISIONED DEVICES:', len(oblivio.provisioned), '\n')
+    print('\n','.. OF WHICH UNUSED ARE PROVISIONED DEVICES:', len(oblivio.provisioned), '\n')
     for i in oblivio.provisioned:
         print(i, end = '\n')
     
-    print('\n','DEPROVISIONED DEVICES:', len(oblivio.deprovisioned), '\n')
+    print('\n','.. OF WHICH UNUSED ARE DEPROVISIONED DEVICES:', len(oblivio.deprovisioned), '\n')
     for i in oblivio.deprovisioned:
         print(i, end = '\n')
     
-    print('\n','DISABLED DEVICES:', len(oblivio.disabled), '\n')
+    print('\n','.. OF WHICH UNUSED ARE DISABLED DEVICES:', len(oblivio.disabled), '\n')
     for i in oblivio.disabled:
         print(i, end = '\n')
-    
 else:
     # If Verbose switch is not used, create the local file and upload it
     file_exists = file.create_file()
