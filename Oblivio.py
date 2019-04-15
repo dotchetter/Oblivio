@@ -219,7 +219,9 @@ class Localfile():
         disabled devices all get their own workbook in the
         xlsx file. '''
 
-        HEAD = [['Status'], ['Serialnumber'], ['OU']]
+        _DATESTR = f'{self._inventoryobj.past} - {self._inventoryobj.present}'
+        INVENTORYINFO = (['Devices unused between:'], [_DATESTR])
+        HEAD = (['Status'], ['Serialnumber'], ['OU'])
 
         try:
             wb = xlsxwriter.Workbook(self._outpath)
@@ -241,10 +243,12 @@ class Localfile():
             ws_disabled.set_column('A:C', 30)
 
             # Populate all inactive devices in the first sheet
-            for index, string in enumerate(HEAD):
+            for index, string in enumerate(INVENTORYINFO):
                 ws_all.write_row(0, index, string)
+            for index, string in enumerate(HEAD):
+                ws_all.write_row(1, index, string)
             for index, device in enumerate(self._inventoryobj.inactive_devices):
-                ws_all.write_row((index + 1), 0, device)
+                ws_all.write_row((index + 2), 0, device)
             
             # Populate the 'Provisioned' sheet in the file
             for index, string in enumerate(HEAD):
