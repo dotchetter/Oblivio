@@ -86,8 +86,8 @@ def verify_prereq(location):
         raise Exception('This version of Oblivio is designed for Linux.')
         check = False
     # Check that GAM resides in the directory
-    elif os.path.isfile(f'{location}/gam.exe') == False:
-        raise Exception('GAM.exe was not found in the specified directory.')
+    elif os.path.isfile(f'{location}/gam') == False:
+        raise Exception('GAM was not found in the specified directory.')
         check = False   
     # Check that oauth2.txt file with credentials exists
     elif os.path.isfile(f'{location}/oauth2.txt') == False:
