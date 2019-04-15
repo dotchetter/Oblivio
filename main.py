@@ -85,6 +85,10 @@ def verify_prereq(location):
     if not 'linux' in sys.platform:
         raise Exception('This version of Oblivio is designed for Linux.')
         check = False
+    # Verify python version is at least 3.6.0
+    elif ver < 3.6:
+        check = False
+        raise Exception('Oblivio requires at least Python 3.6.0 to run.')
     # Check that GAM resides in the directory
     elif os.path.isfile(f'{location}/gam') == False:
         raise Exception('GAM was not found in the specified directory.')
@@ -93,10 +97,6 @@ def verify_prereq(location):
     elif os.path.isfile(f'{location}/oauth2.txt') == False:
         raise Exception('Could not find oauth.txt file - is GAM authenticated?')
         check = False
-    # Verify python version is at least 3.6.0
-    elif ver < 3.6:
-        check = False
-        raise Exception('Oblivio requires at least Python 3.6.0 to run.')
     return check
 
 def get_user_id(filepath):
