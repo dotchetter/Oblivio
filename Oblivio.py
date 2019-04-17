@@ -115,10 +115,10 @@ class Inventory(Datestring):
 
         # Initiate subprocess and process commands
         try:
-            _gam_call = subprocess.run(cmdlist, capture_output = True)
+            _gam_call = subprocess.run(cmdlist, stdout = subprocess.pipe, encoding = 'utf-8')
             _gam_output = str(_gam_call)
             # Format each device in the GAM output with removed trails
-            _gam_output = _gam_output.split('/r/n')
+            _gam_output = _gam_output.split('\\')
         except Exception as e:
             raise Exception(e)
         else:
