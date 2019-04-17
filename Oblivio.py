@@ -115,7 +115,8 @@ class Inventory(Datestring):
 
         # Initiate subprocess and process commands
         try:
-            _gam_call = subprocess.run(cmdlist, stdout = subprocess.pipe, encoding = 'utf-8')
+            _gam_call = subprocess.run(
+                cmdlist, stdout = subprocess.PIPE, encoding = 'utf-8')
             _gam_output = str(_gam_call)
             # Format each device in the GAM output with removed trails
             _gam_output = _gam_output.split('\\')
@@ -284,7 +285,10 @@ class Localfile():
         )
         try:
             # Call GAM to upload the CSV to Google 
-            _gam_call = subprocess.run(_cmd, capture_output = True)
+            _gam_call = subprocess.run(
+                _cmd, stderr = subprocess.PIPE,
+                stdout = subprocess.PIPE
+            )
             if 'unauthorized_client' in str(_gam_call):        
                 print('It seems as though you have not authorized GAM to '
                     'upload files. Ensure that your GAM project is '
