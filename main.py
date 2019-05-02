@@ -35,7 +35,7 @@ from Oblivio import *
 
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
-    description = '''Oblivio v.1.1 by Simon Olofsson. See separate
+    description = '''Oblivio v.1.2 by Simon Olofsson. See separate
                     technical manual on extensive help how to use Oblivio. 
                     Example minimal command: "Oblivio <gampath> <outpath>  
                     <user> <optionals> '''
