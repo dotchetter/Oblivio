@@ -292,7 +292,7 @@ class Localfile():
             if 'unauthorized_client' in str(_gam_call):        
                 print('It seems as though you have not authorized GAM to '
                     'upload files. Ensure that your GAM project is '
-                    'authorized with the Google Drive API.'
+                    'authorized with the Data Transfer API.'
                 )
         except Exception as e:
             raise(e)

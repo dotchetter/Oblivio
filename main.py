@@ -35,7 +35,7 @@ from Oblivio import *
 
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
-    description = '''Oblivio v.1.0 by Simon Olofsson. See separate
+    description = '''Oblivio v.1.1 by Simon Olofsson. See separate
                     technical manual on extensive help how to use Oblivio. 
                     Example minimal command: "Oblivio <gampath> <outpath>  
                     <user> <optionals> '''
@@ -49,9 +49,8 @@ help_strings = (
     'Where Oblivio will store outputfiles. '
     'Example: "~/GAM/OblivioOutputFiles"',
     
-    'Email adress for the account where Oblivio will upload files to. '
-    'Example: "captain.kirk@gsuitedomain.com", or "default" for the same '
-    'account that is authorized for GAM.',
+    'Email adress prefix (or the complete adress) for the account where '
+    'Oblivio will upload files to. Example: "captain.kirk"',
     
     'Use this switch if you wish for the output .xlsx file being removed '
     'automatically when Oblivio is done uploading it to Google Drive.',
@@ -88,31 +87,7 @@ def verify_prereq(location):
     elif os.path.isfile(f'{location}/gam') == False:
         raise Exception('GAM was not found in the specified directory.')
         check = False   
-    # Check that oauth2.txt file with credentials exists
-    elif os.path.isfile(f'{location}/oauth2.txt') == False:
-        raise Exception('Could not find oauth.txt file - is GAM authenticated?')
-        check = False
     return check
-
-def get_user_id(filepath):
-    ''' Return the username email for the authenticated 
-    GAM user, stripped of the domain name to pass on to
-    GAM. This is fetched if the 'default' parameter is
-    given on the USER switch when Oblivio is run. '''
-    try:
-        with open(filepath) as _file:
-            _user_id = json.load(_file)
-            _user_id = _user_id.get('id_token')
-            _user_id = _user_id.get('email')
-    except:
-        raise Exception('An unexpected error occured with parsing oauth.txt.')
-    else:
-        # Strip the user name from domain to minimize leakage risk
-        for index, i in enumerate(_user_id):
-            if i == '@':
-                _user_id[0:index - 1]
-                break
-        return _user_id
 
 if __name__ == '__main__':
     
@@ -121,17 +96,14 @@ if __name__ == '__main__':
     if ready == False:
         sys.exit()
 
-    # If commandline argument is 'default' on user parameter, fetch it
-    if ARGS.user == 'default':
-        user_id = get_user_id(f'{ARGS.gampath}/oauth2.txt')
-    else:
-        user_id = ARGS.user
+    # Set the user ID to the given string in argument
+    user_id = ARGS.user
 
-    # If timedelda is not set by commandline argument, use default
-    if not ARGS.timedelta:
-        __delta = 10
-    else:
+    # Set timedelta to argument value, otherwise use 10 as default
+    if ARGS.timedelta:
         __delta = ARGS.timedelta
+    else:
+        __delta = 10
 
     print(' Running GAM with Oblivio magic. This will take some time, ','\n',
         'as we fetch every single Chrome OS device in your entire domain.','\n',
