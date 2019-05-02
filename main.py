@@ -27,7 +27,6 @@ SOFTWARE.
 '''
 import os
 import sys
-import json
 import argparse
 
 from datetime import datetime
@@ -36,7 +35,7 @@ from Oblivio import *
 # Add commandline parameters when running Oblivio
 argument_parser = argparse.ArgumentParser(
     description = '''Oblivio v.1.2 by Simon Olofsson. See separate
-                    technical manual on extensive help how to use Oblivio. 
+                    readme.md file on extensive help how to use Oblivio. 
                     Example minimal command: "Oblivio <gampath> <outpath>  
                     <user> <optionals> '''
 )
@@ -44,13 +43,13 @@ argument_parser = argparse.ArgumentParser(
 # Add help strings to tuple
 help_strings = (
     'Directory where the GAM binary is located. '
-    'Example: "~/GAM"',
+    'Example: "~/bin/gam"',
     
     'Where Oblivio will store outputfiles. '
-    'Example: "~/GAM/OblivioOutputFiles"',
+    'Example: "~/bin/gam/OblivioOutputFiles"',
     
-    'Email adress prefix (or the complete adress) for the account where '
-    'Oblivio will upload files to. Example: "captain.kirk"',
+    'Email for the account where Oblivio will upload files to. Example: '
+    '"captain.kirk@ussenterprise.com"',
     
     'Use this switch if you wish for the output .xlsx file being removed '
     'automatically when Oblivio is done uploading it to Google Drive.',
