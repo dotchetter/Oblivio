@@ -289,10 +289,10 @@ class Localfile():
                 _cmd, stderr = subprocess.PIPE,
                 stdout = subprocess.PIPE
             )
-            if 'unauthorized_client' in str(_gam_call):        
-                print('It seems as though you have not authorized GAM to '
-                    'upload files. Ensure that your GAM project is '
-                    'authorized with the Data Transfer API.'
+            if 'Service not applicable' in str(_gam_call):        
+                print('It seems as though you have not authorized GAM to upload files. '
+                    'Visit https://github.com/taers232c/GAMADV-XTD/wiki/Authorization '
+                    'if you need help with authenticating GAM toward your G Suite domain.'
                 )
         except Exception as e:
             raise(e)

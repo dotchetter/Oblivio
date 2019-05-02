@@ -105,7 +105,7 @@ if __name__ == '__main__':
     else:
         __delta = 10
 
-    print(' Running GAM with Oblivio magic. This will take some time, ','\n',
+    print('\n','Running GAM with Oblivio magic. This will take some time, ','\n',
         'as we fetch every single Chrome OS device in your entire domain.','\n',
         'Normal runtime: < 10 minutes for 25000 CROS devices.'
     )
