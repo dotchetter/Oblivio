@@ -195,8 +195,8 @@ class Inventory(Datestring):
 
 class Localfile():
     ''' Create an object that holds a list of inactive devices
-    and format them in a CSV format. Methods for creating the CSV 
-    file locally, and uploading the CSV to G Suite using GAM as 
+    and format them in a xlxs format. Methods for creating the CSV 
+    file locally, and uploading the xlsx to G Suite using GAM as 
     separate process.'''
     
     def __init__(self, inventoryobj, outpath, user_id):
